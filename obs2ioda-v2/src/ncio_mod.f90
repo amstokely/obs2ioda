@@ -20,7 +20,7 @@ public :: write_obs
 
 contains
 
-subroutine write_obs (filedate, write_opt, outdir, itim)
+subroutine write_obs (filedate, write_opt, outdir, itim, ioda3_yaml)
 
    implicit none
 
@@ -28,8 +28,9 @@ subroutine write_obs (filedate, write_opt, outdir, itim)
    integer(i_kind),  intent(in)          :: write_opt
    character(len=*), intent(in)          :: outdir
    integer(i_kind),  intent(in)          :: itim
+   character(len=*), intent(in)          :: ioda3_yaml  ! netcdf file name
 
-   character(len=512)                    :: ncfname  ! netcdf file name
+   character(len=nstring)                :: ncfname  ! netcdf file name
    integer(i_kind), dimension(n_ncdim)   :: ncid_ncdim
    integer(i_kind), dimension(n_ncdim)   :: val_ncdim
    integer(i_kind), dimension(n_ncgrp)   :: ncid_ncgrp
@@ -49,6 +50,8 @@ subroutine write_obs (filedate, write_opt, outdir, itim)
    integer(i_kind) :: ncstatus
    integer(i_kind) :: has_wavenumber
    integer(i_kind) :: ncid_ncgrp_wn
+   integer         :: ierr
+
 
    if ( write_opt == write_nc_conv ) then
       ntype = nobtype
@@ -321,6 +324,12 @@ subroutine write_obs (filedate, write_opt, outdir, itim)
       end if ! write_nc_radiance
 
       call close_netcdf(trim(ncfname),ncfileid)
+#ifdef IODA_UPGRADER_BIN
+   call system(IODA_UPGRADER_BIN// '/ioda-upgrade-v1-to-v2.x ' //trim(ncfname)// ' ' //trim(ncfname)//'_tmp', ierr)
+   call system('mv '//trim(ncfname)//'_tmp ' //trim(ncfname), ierr)
+   call system(IODA_UPGRADER_BIN// '/ioda-upgrade-v2-to-v3.x ' //trim(ncfname)// ' ' //trim(ncfname)//'_tmp ' //trim(ioda3_yaml), ierr)
+   call system('mv '//trim(ncfname)//'_tmp ' //trim(ncfname), ierr)
+#endif
 
    end do obtype_loop
 
@@ -338,7 +347,6 @@ subroutine write_obs (filedate, write_opt, outdir, itim)
       if ( allocated(xdata(i,itim)%wavenumber) )     deallocate(xdata(i,itim)%wavenumber)
    end do
 !   deallocate(xdata) ! moved to main.f90
-
 end subroutine write_obs
 
 end module ncio_mod
