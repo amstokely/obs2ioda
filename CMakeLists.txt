@@ -5,9 +5,13 @@ cmake_minimum_required(VERSION 3.10)
 project(obs2ioda)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
+set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -cpp")  # Use -fpp if using Intel Fortran
+
 # Set the Fortran compiler and flags
 enable_language(Fortran)
+set(OBS2IODA_VERSION CACHE STRING "2" )
 set(NCEPLIBS-BUFR_LIBRARIES CACHE STRING "" )
+set(IODA_UPGRADER_BIN CACHE STRING "" )
 if(CMAKE_Fortran_COMPILER_ID MATCHES GNU)
     set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS}   -ffree-line-length-none -mcmodel=medium")
 endif()
@@ -36,10 +40,14 @@ set(OBS2IODA_SRC
     ufo_variables_mod.F90
     utils_mod.f90
 )
-list(TRANSFORM OBS2IODA_SRC PREPEND "${PROJECT_SOURCE_DIR}/src/")
+list(TRANSFORM OBS2IODA_SRC PREPEND "${PROJECT_SOURCE_DIR}/obs2ioda-v2/src/")
 
 # Define executable
 add_executable(obs2ioda-v2.x ${OBS2IODA_SRC})
-
+target_compile_definitions(
+    obs2ioda-v2.x
+    PUBLIC
+    IODA_UPGRADER_BIN=\"${IODA_UPGRADER_BIN}\"
+)
 # Link libraries
 target_link_libraries(obs2ioda-v2.x ${NetCDF_LIBRARIES} ${NCEPLIBS-BUFR_LIBRARIES} )
