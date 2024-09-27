@@ -325,10 +325,10 @@ subroutine write_obs (filedate, write_opt, outdir, itim, ioda3_yaml)
 
       call close_netcdf(trim(ncfname),ncfileid)
 #ifdef IODA_UPGRADER_BIN
-   call system(IODA_UPGRADER_BIN// '/ioda-upgrade-v1-to-v2.x ' //trim(ncfname)// ' ' //trim(ncfname)//'_tmp', ierr)
-   call system('mv '//trim(ncfname)//'_tmp ' //trim(ncfname), ierr)
-   call system(IODA_UPGRADER_BIN// '/ioda-upgrade-v2-to-v3.x ' //trim(ncfname)// ' ' //trim(ncfname)//'_tmp ' //trim(ioda3_yaml), ierr)
-   call system('mv '//trim(ncfname)//'_tmp ' //trim(ncfname), ierr)
+   call execute_command_line(IODA_UPGRADER_BIN// '/ioda-upgrade-v1-to-v2.x ' //trim(ncfname)// ' ' //trim(ncfname)//'_tmp')
+   call execute_command_line('mv '//trim(ncfname)//'_tmp ' //trim(ncfname))
+   call execute_command_line(IODA_UPGRADER_BIN// '/ioda-upgrade-v2-to-v3.x ' //trim(ncfname)// ' ' //trim(ncfname)//'_tmp ' //trim(ioda3_yaml))
+   call execute_command_line('mv '//trim(ncfname)//'_tmp ' //trim(ncfname))
 #endif
 
    end do obtype_loop
