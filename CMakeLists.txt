@@ -6,12 +6,14 @@ project(obs2ioda)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -cpp")  # Use -fpp if using Intel Fortran
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -cpp")
 
 # Set the Fortran compiler and flags
 enable_language(Fortran)
 set(OBS2IODA_VERSION CACHE STRING "2" )
 set(NCEPLIBS-BUFR_LIBRARIES CACHE STRING "" )
 set(IODA_UPGRADER_BIN CACHE STRING "" )
+set(OBS2IODA_V2_TEST_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/test/obs2ioda-v2")
 if(CMAKE_Fortran_COMPILER_ID MATCHES GNU)
     set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS}   -ffree-line-length-none -mcmodel=medium")
 endif()
@@ -51,3 +53,19 @@ target_compile_definitions(
 )
 # Link libraries
 target_link_libraries(obs2ioda-v2.x ${NetCDF_LIBRARIES} ${NCEPLIBS-BUFR_LIBRARIES} )
+
+add_executable(
+        obs2ioda-v2_test
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/obs2ioda-v2/run.cpp
+)
+target_compile_definitions(
+        obs2ioda-v2_test
+        PUBLIC
+        OBS2IODA_V2_TEST_DIRECTORY=\"${OBS2IODA_V2_TEST_DIRECTORY}\"
+)
+
+add_custom_command(TARGET obs2ioda-v2.x POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E create_symlink
+                   $<TARGET_FILE:obs2ioda-v2.x>
+                   ${CMAKE_CURRENT_SOURCE_DIR}/test/obs2ioda-v2/obs2ioda-v2.x
+)

@@ -46,6 +46,7 @@ character (len=NameLen) :: flist(nfile_all)  ! file names to be read in from com
 character (len=NameLen) :: filename
 character (len=DateLen) :: filedate, filedate_out
 character (len=StrLen)  :: inpdir, outdir, cdatetime, ioda3_yaml
+logical                 :: ioda1_to_2, ioda2_to_3
 logical                 :: fexist
 logical                 :: do_radiance
 logical                 :: do_radiance_hyperIR
@@ -67,6 +68,8 @@ do_ahi = .false.
 do_superob = .false.
 apply_gsi_qc = .true. !.false.
 time_split = .false.
+ioda1_to_2 = .true.
+ioda2_to_3 = .true.
 
 call parse_files_to_convert
 
@@ -114,10 +117,10 @@ do ifile = 1, nfile
                write(dtime,'(i2,a)')  hour_fgat*(itime-1)-3, 'h'
                call da_advance_time(filedate, trim(dtime), datetmp)
                filedate_out = datetmp(1:10)
-               call write_obs(filedate_out, write_nc_conv, outdir, itime, ioda3_yaml)
+               call write_obs(filedate_out, write_nc_conv, outdir, itime, ioda3_yaml, ioda1_to_2, ioda2_to_3)
             end do
          else
-            call write_obs(filedate, write_nc_conv, outdir, 1, ioda3_yaml)
+            call write_obs(filedate, write_nc_conv, outdir, 1, ioda3_yaml, ioda1_to_2, ioda2_to_3)
          end if
          if ( allocated(xdata) ) deallocate(xdata)
       end if
@@ -146,10 +149,10 @@ do ifile = 1, nfile
                write(dtime,'(i2,a)')  hour_fgat*(itime-1)-3, 'h'
                call da_advance_time(filedate, trim(dtime), datetmp)
                filedate_out = datetmp(1:10)
-               call write_obs(filedate_out, write_nc_conv, outdir, itime, ioda3_yaml)
+               call write_obs(filedate_out, write_nc_conv, outdir, itime, ioda3_yaml, ioda1_to_2, ioda2_to_3)
             end do
          else
-            call write_obs(filedate, write_nc_conv, outdir, 1, ioda3_yaml)
+            call write_obs(filedate, write_nc_conv, outdir, 1, ioda3_yaml, ioda1_to_2, ioda2_to_3)
          end if
          if ( allocated(xdata) ) deallocate(xdata)
       end if
@@ -201,10 +204,10 @@ if ( do_radiance ) then
          write(dtime,'(i2,a)')  hour_fgat*(itime-1)-3, 'h'
          call da_advance_time(filedate, trim(dtime), datetmp)
          filedate_out = datetmp(1:10)
-         call write_obs(filedate_out, write_nc_radiance, outdir, itime, ioda3_yaml)
+         call write_obs(filedate_out, write_nc_radiance, outdir, itime, ioda3_yaml, ioda1_to_2, ioda2_to_3)
       end do
    else
-      call write_obs(filedate, write_nc_radiance, outdir, 1, ioda3_yaml)
+      call write_obs(filedate, write_nc_radiance, outdir, 1, ioda3_yaml, ioda1_to_2, ioda2_to_3)
    end if
    if ( allocated(xdata) ) deallocate(xdata)
 end if
@@ -250,10 +253,10 @@ if ( do_radiance_hyperIR ) then
          write(dtime,'(i2,a)')  hour_fgat*(itime-1)-3, 'h'
          call da_advance_time(filedate, trim(dtime), datetmp)
          filedate_out = datetmp(1:10)
-         call write_obs(filedate_out, write_nc_radiance, outdir, itime, ioda3_yaml)
+         call write_obs(filedate_out, write_nc_radiance, outdir, itime, ioda3_yaml, ioda1_to_2, ioda2_to_3)
       end do
    else
-      call write_obs(filedate, write_nc_radiance, outdir, 1, ioda3_yaml)
+      call write_obs(filedate, write_nc_radiance, outdir, 1, ioda3_yaml, ioda1_to_2, ioda2_to_3)
    end if
    if ( allocated(xdata) ) deallocate(xdata)
 end if
@@ -265,7 +268,7 @@ if ( do_ahi ) then
    end if
    call read_HSD(cdatetime, inpdir, do_superob, superob_halfwidth)
    filedate = cdatetime(1:10)
-   call write_obs(filedate, write_nc_radiance_geo, outdir, 1, ioda3_yaml)
+   call write_obs(filedate, write_nc_radiance_geo, outdir, 1, ioda3_yaml, ioda1_to_2, ioda2_to_3)
    if ( allocated(xdata) ) deallocate(xdata)
 end if
 write(6,*) 'all done!'
@@ -277,7 +280,7 @@ subroutine parse_files_to_convert
 implicit none
 
 integer(i_kind)       :: iunit = 21
-integer(i_kind)       :: narg, iarg, iarg_ioda3_yaml, iarg_inpdir, iarg_outdir, iarg_datetime, iarg_subsample, iarg_superob_halfwidth
+integer(i_kind)       :: narg, iarg, iarg_ioda3_yaml, iarg_inpdir, iarg_outdir, iarg_datetime, iarg_subsample, iarg_superob_halfwidth, iarg_v1_to_v2, iarg_v2_to_v3
 integer(i_kind)       :: itmp
 integer(i_kind)       :: iost, iret, idate
 character(len=StrLen) :: strtmp
@@ -314,6 +317,10 @@ if ( narg > 0 ) then
          iarg_outdir = iarg + 1
       else if ( trim(strtmp) == '-yaml' ) then
          iarg_ioda3_yaml = iarg + 1
+      else if ( trim(strtmp) == '-v1_to_v2' ) then
+            ioda1_to_2 = .true.
+      else if ( trim(strtmp) == '-v2_to_v3' ) then
+            ioda2_to_3 = .true.
       else if ( trim(strtmp) == '-t' ) then
          iarg_datetime = iarg + 1
       else if ( trim(strtmp) == '-s' ) then

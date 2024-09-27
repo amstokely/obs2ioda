@@ -20,7 +20,7 @@ public :: write_obs
 
 contains
 
-subroutine write_obs (filedate, write_opt, outdir, itim, ioda3_yaml)
+subroutine write_obs (filedate, write_opt, outdir, itim, ioda3_yaml, ioda1_to_2, ioda2_to_3)
 
    implicit none
 
@@ -28,9 +28,11 @@ subroutine write_obs (filedate, write_opt, outdir, itim, ioda3_yaml)
    integer(i_kind),  intent(in)          :: write_opt
    character(len=*), intent(in)          :: outdir
    integer(i_kind),  intent(in)          :: itim
-   character(len=*), intent(in)          :: ioda3_yaml  ! netcdf file name
+   character(len=*), intent(in)          :: ioda3_yaml
+   logical,          intent(in)          :: ioda1_to_2
+   logical,          intent(in)          :: ioda2_to_3
 
-   character(len=nstring)                :: ncfname  ! netcdf file name
+   character(len=512)                    :: ncfname  ! netcdf file name
    integer(i_kind), dimension(n_ncdim)   :: ncid_ncdim
    integer(i_kind), dimension(n_ncdim)   :: val_ncdim
    integer(i_kind), dimension(n_ncgrp)   :: ncid_ncgrp
@@ -79,7 +81,6 @@ subroutine write_obs (filedate, write_opt, outdir, itim, ioda3_yaml)
       iv = ufo_vars_getindex(name_var_info, 'datetime')
       xdata(ityp,itim)%min_datetime = xdata(ityp,itim)%xinfo_char(imin_datetime(1),iv)
       xdata(ityp,itim)%max_datetime = xdata(ityp,itim)%xinfo_char(imax_datetime(1),iv)
-
       if ( write_opt == write_nc_conv ) then
          ncfname = trim(outdir)//trim(obtype_list(ityp))//'_obs_'//trim(filedate)//'.h5'
       else if ( write_opt == write_nc_radiance ) then
@@ -325,10 +326,14 @@ subroutine write_obs (filedate, write_opt, outdir, itim, ioda3_yaml)
 
       call close_netcdf(trim(ncfname),ncfileid)
 #ifdef IODA_UPGRADER_BIN
-   call execute_command_line(IODA_UPGRADER_BIN// '/ioda-upgrade-v1-to-v2.x ' //trim(ncfname)// ' ' //trim(ncfname)//'_tmp')
-   call execute_command_line('mv '//trim(ncfname)//'_tmp ' //trim(ncfname))
-   call execute_command_line(IODA_UPGRADER_BIN// '/ioda-upgrade-v2-to-v3.x ' //trim(ncfname)// ' ' //trim(ncfname)//'_tmp ' //trim(ioda3_yaml))
-   call execute_command_line('mv '//trim(ncfname)//'_tmp ' //trim(ncfname))
+   if ( ioda1_to_2 .eqv. .true. ) then
+      call execute_command_line(IODA_UPGRADER_BIN// '/ioda-upgrade-v1-to-v2.x ' //trim(ncfname)// ' ' //trim(ncfname)//'_tmp')
+      call execute_command_line('mv '//trim(ncfname)//'_tmp ' //trim(ncfname))
+   end if
+   if ( ioda2_to_3 .eqv. .true. ) then
+      call execute_command_line(IODA_UPGRADER_BIN// '/ioda-upgrade-v2-to-v3.x ' //trim(ncfname)// ' ' //trim(ncfname)//'_tmp ' //trim(ioda3_yaml))
+      call execute_command_line('mv '//trim(ncfname)//'_tmp ' //trim(ncfname))
+   end if
 #endif
 
    end do obtype_loop
