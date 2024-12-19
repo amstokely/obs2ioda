@@ -3,7 +3,6 @@
 #include <memory>
 
 namespace Obs2Ioda {
-
     FileMap &FileMap::getInstance() {
         static FileMap instance;
         return instance;
