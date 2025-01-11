@@ -16,11 +16,10 @@ set(OBS2IODA_MODULE_DIR ${PROJECT_NAME}/module/${CMAKE_Fortran_COMPILER_ID}/${CM
 # Set the Fortran compiler and flags
 set(NCEP_BUFR_LIB CACHE STRING "" )
 # Set obs2ioda installation directory. If not set, default to the build directory
-set(OBS2IODA_INSTALL_DIR CACHE STRING "" )
+set(OBS2IODA_INSTALL_DIR "${CMAKE_BINARY_DIR}" CACHE STRING "Installation directory for obs2ioda")
 # Set the install prefix. This is required because CMAKE_INSTALL_PREFIX
 # is used to define the binary and library installation directories.
-message(STATUS "OBS2IODA_INSTALL_DIR: ${OBS2IODA_INSTALL_DIR}")
-message(STATUS "CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")
+set(CMAKE_INSTALL_PREFIX "${OBS2IODA_INSTALL_DIR}" CACHE PATH "Installation prefix" FORCE)
 # Install Fortran module directory
 install(DIRECTORY ${CMAKE_BINARY_DIR}/${OBS2IODA_MODULE_DIR}/ DESTINATION ${CMAKE_INSTALL_LIBDIR}/${OBS2IODA_MODULE_DIR}/)
 
