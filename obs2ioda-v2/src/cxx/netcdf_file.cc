@@ -2,60 +2,76 @@
 #include "netcdf_error.h"
 #include <memory>
 
-namespace Obs2Ioda {
-
-    NetCDFFileManager &NetCDFFileManager::instance() {
+namespace Obs2Ioda
+{
+    NetCDFFileManager& NetCDFFileManager::instance()
+    {
         static NetCDFFileManager instance;
         return instance;
     }
 
-    std::unordered_map<int, std::shared_ptr<netCDF::NcFile> >
-    &NetCDFFileManager::getMap() {
+    std::unordered_map<int, std::shared_ptr<netCDF::NcFile>>
+    & NetCDFFileManager::getMap()
+    {
         return instance().files;
     }
 
-    std::shared_mutex &NetCDFFileManager::getMutex() {
+    std::shared_mutex& NetCDFFileManager::getMutex()
+    {
         return instance().mutex;
     }
 
 
     int netcdfCreate(
-            const char *path,
-            int *netcdfID
-    ) {
-        try {
-            NetCDFFileManager::getMutex().lock();
+        const char* path,
+        int* netcdfID
+    )
+    {
+        try
+        {
+            std::lock_guard<std::shared_mutex> lock(NetCDFFileManager::getMutex());
             auto file = std::make_shared<netCDF::NcFile>(
-                    path,
-                    netCDF::NcFile::replace
+                path,
+                netCDF::NcFile::replace
             );
             *netcdfID = file->getId();
             NetCDFFileManager::getMap()[*netcdfID] = file;
-            NetCDFFileManager::getMutex().unlock();
             return 0;
-        } catch (netCDF::exceptions::NcException &e) {
+        }
+        catch (netCDF::exceptions::NcException& e)
+        {
             return netcdfErrorMessage(
-                    e,
-                    __LINE__,
-                    __FILE__
+                e,
+                __LINE__,
+                __FILE__
             );
         }
     }
 
-    int netcdfClose(int netcdfID) {
-        try {
-            NetCDFFileManager::getMutex().lock();
-            auto file = Obs2Ioda::NetCDFFileManager::getMap()[netcdfID];
-            file->close();
-            NetCDFFileManager::getMap().erase(netcdfID);
-            NetCDFFileManager::getMutex().unlock();
+    int netcdfClose(int netcdfID)
+    {
+        try
+        {
+            // Lock the mutex and access the map safely
+            std::lock_guard<std::shared_mutex> lock(NetCDFFileManager::getMutex());
+            auto& map = NetCDFFileManager::getMap();
+
+            // Find the NetCDF ID
+            const auto it = map.find(netcdfID);
+            if (it == map.end())
+            {
+                netCDF::exceptions::NcBadId e("Invalid NetCDF ID", __FILE__, __LINE__);
+                return netcdfErrorMessage(e, __LINE__, __FILE__);
+            }
+
+            // Erase the entry from the map
+            map.erase(it);
             return 0;
-        } catch (netCDF::exceptions::NcException &e) {
-            return netcdfErrorMessage(
-                    e,
-                    __LINE__,
-                    __FILE__
-            );
+        }
+        catch (const netCDF::exceptions::NcException& e)
+        {
+            // Delegate exception handling
+            return netcdfErrorMessage(e, __LINE__, __FILE__);
         }
     }
 }
