@@ -4,6 +4,19 @@ module netcdf_cxx_i_mod
     public
 
     interface
+        ! c_netcdfCreate:
+        !   Creates a new NetCDF file or opens an existing file in a specified mode.
+        !   The file path must be passed as a C-compatible null-terminated string.
+        !   The resulting file identifier is returned in `netcdfID` for further operations.
+        !
+        !   Arguments:
+        !     - path (type(c_ptr), intent(in), value): A C pointer to a null-terminated
+        !       string representing the file path.
+        !     - netcdfID (integer(c_int), intent(out)): Receives the file identifier
+        !       for the created or opened NetCDF file.
+        !
+        !   Returns:
+        !     - integer(c_int): A status code indicating success (0) or failure (non-zero).
         function c_netcdfCreate(path, netcdfID) &
                 bind(C, name = "netcdfCreate")
             import :: c_int
@@ -13,6 +26,15 @@ module netcdf_cxx_i_mod
             integer(c_int) :: c_netcdfCreate
         end function
 
+        ! c_netcdfClose:
+        !   Closes a previously opened NetCDF file identified by its file identifier.
+        !
+        !   Arguments:
+        !     - netcdfID (integer(c_int), intent(in), value): The identifier of the
+        !       NetCDF file to close.
+        !
+        !   Returns:
+        !     - integer(c_int): A status code indicating success (0) or failure (non-zero).
         function c_netcdfClose(netcdfID) &
                 bind(C, name = "netcdfClose")
             import :: c_int

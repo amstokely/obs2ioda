@@ -26,7 +26,8 @@ namespace Obs2Ioda {
         } catch (netCDF::exceptions::NcException &e) {
             return netcdfErrorMessage(
                     e,
-                    1
+                    __LINE__,
+                    __FILE__
             );
         }
     }
@@ -41,7 +42,8 @@ namespace Obs2Ioda {
         } catch (netCDF::exceptions::NcException &e) {
             return netcdfErrorMessage(
                     e,
-                    1
+                    __LINE__,
+                    __FILE__
             );
         }
     }
