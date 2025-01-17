@@ -1,5 +1,6 @@
 // NetCDFTestFixture.cpp
 #include "netcdf_test_fixture.h"
+#include <filesystem>
 
 void NetCDFTestFixture::SetUp() {
     test_file_path = "test_file.nc";
@@ -33,5 +34,10 @@ void NetCDFTestFixture::SetUp() {
 }
 
 void NetCDFTestFixture::TearDown() {
-    // Cleanup if necessary
+    // Remove the test file
+    std::filesystem::remove(this->test_file_path);
+    std::filesystem::remove(this->test_group_path);
+    std::filesystem::remove(this->test_dim_path);
+    std::filesystem::remove(this->test_var_path);
+    std::filesystem::remove(this->test_att_path);
 }
