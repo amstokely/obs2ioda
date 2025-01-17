@@ -1,0 +1,113 @@
+#ifndef NETCDF_VARIABLE_H
+#define NETCDF_VARIABLE_H
+#include <netcdf>
+
+namespace Obs2Ioda {
+
+    template<typename T>
+    int netcdfPutVar(
+            int netcdfID,
+            const char *groupName,
+            const char *varName,
+            const T *data
+    );
+
+    template<typename T>
+    int netcdfGetVar(
+            int netcdfID,
+            const char *groupName,
+            const char *varName,
+            T **data
+    );
+
+    template<typename T>
+    int netcdfSetFill(
+            int netcdfID,
+            const char *groupName,
+            const char *varName,
+            int fillMode,
+            T fillValue
+    );
+
+    extern "C" {
+
+    int netcdfAddVar(
+            int netcdfID,
+            const char *groupName,
+            const char *varName,
+            nc_type netcdfDataType,
+            int numDims,
+            const char **dimNames
+    );
+    int netcdfPutVarInt(
+            int netcdfID,
+            const char *groupName,
+            const char *varName,
+            const int *data
+    );
+
+    int netcdfPutVarInt64(
+            int netcdfID,
+            const char *groupName,
+            const char *varName,
+            const long long *data
+    );
+
+    int netcdfPutVarReal(
+            int netcdfID,
+            const char *groupName,
+            const char *varName,
+            const float *data
+    );
+
+    int netcdfPutVarString(
+            int netcdfID,
+            const char *groupName,
+            const char *varName,
+            const char **data
+    );
+
+    int netcdfGetVarString1D(
+            int netcdfID,
+            const char *groupName,
+            const char *varName,
+            char ***data
+    );
+
+    int netcdfSetFillInt(
+            int netcdfID,
+            const char *groupName,
+            const char *varName,
+            int fillMode,
+            int fillValue
+    );
+
+    int netcdfSetFillReal(
+            int netcdfID,
+            const char *groupName,
+            const char *varName,
+            int fillMode,
+            float fillValue
+    );
+
+    int netcdfSetFillInt64(
+            int netcdfID,
+            const char *groupName,
+            const char *varName,
+            int fillMode,
+            long long fillValue
+    );
+
+    int netcdfSetFillString(
+            int netcdfID,
+            const char *groupName,
+            const char *varName,
+            int fillMode,
+            const char *fillValue
+    );
+
+    }
+
+}
+
+#endif //NETCDF_VARIABLE_H
