@@ -4,23 +4,34 @@
 
 namespace Obs2Ioda {
 
-    std::unordered_map<
-               int,
-               std::shared_ptr<netCDF::NcFile>> NETCDF_FILE_MAP;
-    std::shared_mutex map_mutex;
+    NetCDFFileManager &NetCDFFileManager::instance() {
+        static NetCDFFileManager instance;
+        return instance;
+    }
+
+    std::unordered_map<int, std::shared_ptr<netCDF::NcFile> >
+    &NetCDFFileManager::getMap() {
+        return instance().files;
+    }
+
+    std::shared_mutex &NetCDFFileManager::getMutex() {
+        return instance().mutex;
+    }
+
 
     int netcdfCreate(
             const char *path,
             int *netcdfID
     ) {
         try {
+            NetCDFFileManager::getMutex().lock();
             auto file = std::make_shared<netCDF::NcFile>(
                     path,
                     netCDF::NcFile::replace
             );
             *netcdfID = file->getId();
-            std::lock_guard<std::shared_mutex> lock(map_mutex);
-            NETCDF_FILE_MAP[*netcdfID] = file;
+            NetCDFFileManager::getMap()[*netcdfID] = file;
+            NetCDFFileManager::getMutex().unlock();
             return 0;
         } catch (netCDF::exceptions::NcException &e) {
             return netcdfErrorMessage(
@@ -33,10 +44,11 @@ namespace Obs2Ioda {
 
     int netcdfClose(int netcdfID) {
         try {
-            std::lock_guard<std::shared_mutex> lock(map_mutex);
-            auto file = NETCDF_FILE_MAP[netcdfID];
+            NetCDFFileManager::getMutex().lock();
+            auto file = Obs2Ioda::NetCDFFileManager::getMap()[netcdfID];
             file->close();
-            NETCDF_FILE_MAP.erase(netcdfID);
+            NetCDFFileManager::getMap().erase(netcdfID);
+            NetCDFFileManager::getMutex().unlock();
             return 0;
         } catch (netCDF::exceptions::NcException &e) {
             return netcdfErrorMessage(

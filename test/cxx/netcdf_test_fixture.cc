@@ -1,4 +1,3 @@
-// NetCDFTestFixture.cpp
 #include "netcdf_test_fixture.h"
 #include <filesystem>
 
