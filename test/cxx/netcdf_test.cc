@@ -107,6 +107,37 @@ TEST_F(NetCDFTestFixture, NetCDFAddGroupTest) {
     EXPECT_EQ(status, 0);
 }
 
+TEST_F(NetCDFTestFixture, NetCDFAddDimTest) {
+        int netcdfID{};
+        int status = Obs2Ioda::netcdfCreate(
+                this->test_dim_path.c_str(),
+                &netcdfID
+        );
+        EXPECT_EQ(status, 0);
+        status = Obs2Ioda::netcdfAddGroup(
+                netcdfID,
+                nullptr,
+                this->test_group_name.c_str()
+        );
+        EXPECT_EQ(status, 0);
+        status = Obs2Ioda::netcdfAddDim(
+                netcdfID,
+                nullptr,
+                this->test_global_dim_name.c_str(),
+                this->test_global_dim_len
+        );
+        EXPECT_EQ(status, 0);
+        status = Obs2Ioda::netcdfAddDim(
+                netcdfID,
+                this->test_group_name.c_str(),
+                this->test_dim_name.c_str(),
+                this->test_dim_len
+        );
+        EXPECT_EQ(status, 0);
+        status = Obs2Ioda::netcdfClose(netcdfID);
+        EXPECT_EQ(status, 0);
+}
+
 TEST_F(NetCDFTestFixture, NetCDFAddVarTest) {
     int netcdfID{};
     int status = Obs2Ioda::netcdfCreate(

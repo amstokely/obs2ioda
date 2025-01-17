@@ -95,6 +95,18 @@ module netcdf_cxx_i_mod
             integer(c_int) :: c_netcdfAddGroup
         end function c_netcdfAddGroup
 
+        function c_netcdfAddDim(&
+                netcdfID, groupName, dimName, len) &
+                bind(C, name = "netcdfAddDim")
+            import :: c_int
+            import :: c_ptr
+            integer(c_int), value, intent(in) :: netcdfID
+            type(c_ptr), value, intent(in) :: groupName
+            type(c_ptr), value, intent(in) :: dimName
+            integer(c_int), value, intent(in) :: len
+            integer(c_int) :: c_netcdfAddDim
+        end function c_netcdfAddDim
+
         function c_netcdfAddVar(&
                 netcdfID, groupName, varName, netcdfDataType, numDims, dimNames) &
                 bind(C, name = "netcdfAddVar")
