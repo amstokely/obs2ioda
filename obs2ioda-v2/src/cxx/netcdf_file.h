@@ -2,7 +2,6 @@
 #define OBS2IODA_NETCDF_FILE_H
 
 #include <netcdf>
-#include <map>
 #include <unordered_map>
 #include <memory>
 #include <mutex>

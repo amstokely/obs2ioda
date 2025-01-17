@@ -19,6 +19,18 @@ module netcdf_cxx_i_mod
             integer(c_int), value, intent(in) :: netcdfID
             integer(c_int) :: c_netcdfClose
         end function
+
+        function c_netcdfAddGroup(&
+                netcdfID, parentGroupName, groupName) &
+                bind(C, name = "netcdfAddGroup")
+            import :: c_int
+            import :: c_ptr
+            integer(c_int), value, intent(in) :: netcdfID
+            type(c_ptr), value, intent(in) :: parentGroupName
+            type(c_ptr), value, intent(in) :: groupName
+            integer(c_int) :: c_netcdfAddGroup
+        end function c_netcdfAddGroup
+
     end interface
 
 end module netcdf_cxx_i_mod
