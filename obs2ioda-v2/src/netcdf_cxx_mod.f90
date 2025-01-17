@@ -1,9 +1,8 @@
 module netcdf_cxx_mod
-    use iso_c_binding, only : c_char, c_null_char, c_null_ptr, c_int
+    use iso_c_binding, only : c_int, c_ptr
     use f_c_string_t_mod, only : f_c_string_t
-    use f_c_string_1D_t_mod, only : f_c_string_1D_t
-    use netcdf_cxx_i_mod
-    use netcdf, only : NF90_INT, NF90_INT64, NF90_REAL
+    use netcdf_cxx_i_mod, only : c_netcdfCreate, c_netcdfClose
+    use netcdf, only : NF90_INT, NF90_REAL
     implicit none
     public
 

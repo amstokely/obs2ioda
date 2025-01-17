@@ -1,5 +1,5 @@
 module netcdf_cxx_i_mod
-    use iso_c_binding
+    use iso_c_binding, only : c_int, c_ptr
     implicit none
     public
 
