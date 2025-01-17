@@ -4,7 +4,7 @@
 #include <netcdf>
 #include <unordered_map>
 #include <memory>
-#include <mutex>
+#include <shared_mutex>
 
 namespace Obs2Ioda {
 
@@ -14,8 +14,8 @@ namespace Obs2Ioda {
                int, ///< The NetCDF file ID.
                std::shared_ptr<netCDF::NcFile>> NETCDF_FILE_MAP;
 
-    /// A mutex to synchronize access to the NETCDF_FILE_MAP.
-    extern std::mutex map_mutex;
+    /// A shared mutex to synchronize access to the NETCDF_FILE_MAP.
+    extern std::shared_mutex map_mutex;
 
     extern "C" {
 

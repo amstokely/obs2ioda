@@ -1,6 +1,5 @@
 #include "netcdf_file.h"
 #include "netcdf_error.h"
-#include <mutex>
 #include <memory>
 
 namespace Obs2Ioda {
@@ -8,7 +7,7 @@ namespace Obs2Ioda {
     std::unordered_map<
                int,
                std::shared_ptr<netCDF::NcFile>> NETCDF_FILE_MAP;
-    std::mutex map_mutex;
+    std::shared_mutex map_mutex;
 
     int netcdfCreate(
             const char *path,
@@ -20,7 +19,7 @@ namespace Obs2Ioda {
                     netCDF::NcFile::replace
             );
             *netcdfID = file->getId();
-            std::lock_guard<std::mutex> lock(map_mutex);
+            std::lock_guard<std::shared_mutex> lock(map_mutex);
             NETCDF_FILE_MAP[*netcdfID] = file;
             return 0;
         } catch (netCDF::exceptions::NcException &e) {
@@ -34,7 +33,7 @@ namespace Obs2Ioda {
 
     int netcdfClose(int netcdfID) {
         try {
-            std::lock_guard<std::mutex> lock(map_mutex);
+            std::lock_guard<std::shared_mutex> lock(map_mutex);
             auto file = NETCDF_FILE_MAP[netcdfID];
             file->close();
             NETCDF_FILE_MAP.erase(netcdfID);

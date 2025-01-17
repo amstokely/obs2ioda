@@ -62,5 +62,4 @@ contains
         netcdfClose = c_netcdfClose(netcdfID)
     end function netcdfClose
 
-
 end module netcdf_cxx_mod
