@@ -3,16 +3,14 @@
 #include <memory>
 
 namespace Obs2Ioda {
-    NetcdfFileMap &NetcdfFileMap::getInstance() {
-        static NetcdfFileMap instance;
+    FileMap &FileMap::getInstance() {
+        static FileMap instance;
         return instance;
     }
 
-    int NetcdfFileMap::addFile(const int netcdfID, const std::shared_ptr<netCDF::NcFile> &file) {
-            std::lock_guard<std::mutex> lock(this->netcdfFileMapMutex);
-
-            auto it = this->netcdfFileMap.find(netcdfID);
-            if (it != this->netcdfFileMap.end()) {
+    int FileMap::addFile(const int netcdfID, const std::shared_ptr<netCDF::NcFile> &file) {
+            auto netcdfFileIterator = this->netcdfFileMap.find(netcdfID);
+            if (netcdfFileIterator != this->netcdfFileMap.end()) {
                 throw netCDF::exceptions::NcCantCreate(
                     "NetCDF ID already exists in the NetCDF file map",
                     __FILE__,
@@ -24,23 +22,21 @@ namespace Obs2Ioda {
     }
 
 
-    int NetcdfFileMap::removeFile(const int netcdfID) {
-            std::lock_guard<std::mutex> lock(this->netcdfFileMapMutex);
-            auto it = this->netcdfFileMap.find(netcdfID);
-            if (it == this->netcdfFileMap.end()) {
+    int FileMap::removeFile(const int netcdfID) {
+            auto netcdfFileIterator = this->netcdfFileMap.find(netcdfID);
+            if (netcdfFileIterator == this->netcdfFileMap.end()) {
                 throw netCDF::exceptions::NcBadId(
                     "NetCDF ID not found in the NetCDF file map",
                     __FILE__,
                     __LINE__
                 );
             }
-            this->netcdfFileMap.erase(it);
+            this->netcdfFileMap.erase(netcdfFileIterator);
             return 0;
     }
 
-    std::shared_ptr<netCDF::NcFile> NetcdfFileMap::getFile(const int netcdfID) {
-            std::lock_guard<std::mutex> lock(this->netcdfFileMapMutex);
-            auto netcdfFileIterator = this->netcdfFileMap.find(netcdfID);
+    std::shared_ptr<netCDF::NcFile> FileMap::getFile(const int netcdfID) {
+            const auto netcdfFileIterator = this->netcdfFileMap.find(netcdfID);
             if (netcdfFileIterator == this->netcdfFileMap.end()) {
                 throw netCDF::exceptions::NcBadId(
                     "NetCDF ID not found in the NetCDF file map",
@@ -51,18 +47,22 @@ namespace Obs2Ioda {
             return netcdfFileIterator->second;
     }
 
+    std::shared_mutex &FileMap::getMutex() {
+        return this->netcdfFileMapMutex;
+    }
 
     int netcdfCreate(
         const char *path,
         int *netcdfID
     ) {
         try {
+            std::lock_guard lock(FileMap::getInstance().getMutex());
             const auto file = std::make_shared<netCDF::NcFile>(
                 path,
                 netCDF::NcFile::replace
             );
             *netcdfID = file->getId();
-            NetcdfFileMap::getInstance().addFile(
+            FileMap::getInstance().addFile(
                 *netcdfID,
                 file
             );
@@ -79,8 +79,9 @@ namespace Obs2Ioda {
 
     int netcdfClose(const int netcdfID) {
         try {
-            NetcdfFileMap::getInstance().getFile(netcdfID)->close();
-            return NetcdfFileMap::getInstance().removeFile(netcdfID);
+            std::lock_guard lock(FileMap::getInstance().getMutex());
+            FileMap::getInstance().getFile(netcdfID)->close();
+            return FileMap::getInstance().removeFile(netcdfID);
         } catch (netCDF::exceptions::NcException &e) {
             return netcdfErrorMessage(
                 e,

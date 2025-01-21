@@ -4,18 +4,18 @@
 #include <netcdf>
 #include <unordered_map>
 #include <memory>
-#include <mutex>
+#include <shared_mutex>
 
 namespace Obs2Ioda {
 /**
- * @class NetcdfFileMap
+ * @class FileMap
  * @brief Singleton class for managing a thread-safe mapping of NetCDF file IDs to file objects.
  *
  * This class ensures thread-safe operations on a map that associates unique NetCDF IDs with
  * `std::shared_ptr` instances of `netCDF::NcFile`. It provides methods to add, remove, and
  * retrieve files, while enforcing singleton usage.
  */
-class NetcdfFileMap {
+class FileMap {
 public:
     /**
      * @brief Retrieves the singleton instance of the NetcdfFileMap.
@@ -24,17 +24,17 @@ public:
      *
      * @return A reference to the singleton instance of NetcdfFileMap.
      */
-    static NetcdfFileMap& getInstance();
+    static FileMap& getInstance();
 
     /**
      * @brief Deleted copy constructor to enforce singleton behavior.
      */
-    NetcdfFileMap(const NetcdfFileMap&) = delete;
+    FileMap(const FileMap&) = delete;
 
     /**
      * @brief Deleted assignment operator to enforce singleton behavior.
      */
-    NetcdfFileMap& operator=(const NetcdfFileMap&) = delete;
+    FileMap& operator=(const FileMap&) = delete;
 
     /**
      * @brief Adds a NetCDF file to the map.
@@ -45,7 +45,7 @@ public:
      * @param netcdfID The unique NetCDF file ID.
      * @param file A shared pointer to the NetCDF file to be added.
      * @return 0 on success, or an error code if an exception is caught.
-     * @throws netCDF::exceptions::NcBadId if the `netcdfID` already exists in the map.
+     * @throws netCDF::exceptions::NcCantCreate if the `netcdfID` already exists in the map.
      */
     int addFile(int netcdfID, const std::shared_ptr<netCDF::NcFile>& file);
 
@@ -69,21 +69,29 @@ public:
      *
      * @param netcdfID The unique NetCDF file ID to retrieve.
      * @return A shared pointer to the NetCDF file.
-     * @throws std::runtime_error if the `netcdfID` does not exist in the map.
+     * @throws netCDF::exceptions::NcBadId if the `netcdfID` does not exist in the map.
      */
     std::shared_ptr<netCDF::NcFile> getFile(int netcdfID);
+
+    /**
+     * @brief Retrieves the shared mutex for the NetCDF file map. Due to NetCDF's lack of thread safety,
+     * the user is responsible for using this mutex when necessary.
+     *
+     * @return A reference to the shared mutex for the NetCDF file map.
+     */
+    std::shared_mutex& getMutex();
 
 private:
     /**
      * @brief Private constructor to prevent direct instantiation.
      */
-    NetcdfFileMap() = default;
+    FileMap() = default;
 
     /// Map associating NetCDF file IDs with their corresponding shared pointers to NetCDF files.
     std::unordered_map<int, std::shared_ptr<netCDF::NcFile>> netcdfFileMap;
 
-    /// Mutex to ensure thread-safe access to the map.
-    std::mutex netcdfFileMapMutex;
+    /// Shared mutex to ensure thread-safe access to the map.
+    std::shared_mutex netcdfFileMapMutex;
 };
 
 
