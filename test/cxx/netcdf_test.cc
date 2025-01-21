@@ -26,14 +26,27 @@
 TEST_F(NetCDFTestFixture, NetCDFCreateTest) {
     int netcdfID{};
     int status = Obs2Ioda::netcdfCreate(
-            this->test_file_path.c_str(),
-            &netcdfID
+        this->test_file_path.c_str(),
+        &netcdfID
     );
     EXPECT_EQ(status, 0);
+    status = Obs2Ioda::netcdfCreate(
+        this->test_file_path.c_str(),
+        &netcdfID
+    );
+    EXPECT_EQ(status, 13);
+    auto file = Obs2Ioda::NetcdfFileMap::getInstance().getFile(netcdfID);
+    EXPECT_THROW(
+        Obs2Ioda::NetcdfFileMap::getInstance().addFile(netcdfID, file),
+        netCDF::exceptions::NcCantCreate
+    );
     EXPECT_TRUE(std::filesystem::exists(this->test_file_path));
-
+    EXPECT_THROW(Obs2Ioda::NetcdfFileMap::getInstance().getFile(1), netCDF::exceptions::NcBadId);
     status = Obs2Ioda::netcdfClose(netcdfID);
     EXPECT_EQ(status, 0);
+    status = Obs2Ioda::netcdfClose(netcdfID);
+    EXPECT_EQ(status, -33);
+    EXPECT_THROW(Obs2Ioda::NetcdfFileMap::getInstance().removeFile(1), netCDF::exceptions::NcBadId);
 }
 
 int main(int argc, char **argv) {
