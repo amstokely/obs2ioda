@@ -7,19 +7,6 @@
 
 namespace Obs2Ioda {
 
-    std::string getIodaName(
-            const char *name,
-            const std::unordered_map<
-                    std::string,
-                    std::string
-            > &iodaNameMap
-    );
-
-    int netcdfErrorMessage(
-            netCDF::exceptions::NcException &e,
-            int errorCode
-    );
-
     std::shared_ptr<netCDF::NcGroup> getRootGroup(
             int netcdfID,
             const char *groupName

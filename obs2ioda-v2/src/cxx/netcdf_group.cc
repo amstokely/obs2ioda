@@ -1,7 +1,7 @@
 #include "netcdf_group.h"
 #include "netcdf_utils.h"
 #include "netcdf_file.h"
-#include <mutex>
+#include "netcdf_error.h"
 
 namespace Obs2Ioda {
 
@@ -11,15 +11,16 @@ namespace Obs2Ioda {
             const char *groupName
     ) {
         try {
-            std::lock_guard<std::mutex> lock(map_mutex);
-            auto file = NETCDF_FILE_MAP[netcdfID];
-            auto group = getRootGroup(netcdfID, parentGroupName);
-            group->addGroup(groupName);
+            std::lock_guard lock(sharedMutex);
+            auto file = FileMap::getInstance().getFile(netcdfID);
+            const auto rootGroup = getRootGroup(netcdfID, parentGroupName);
+            const auto group = rootGroup->addGroup(groupName);
             return 0;
         } catch (netCDF::exceptions::NcException &e) {
             return netcdfErrorMessage(
                     e,
-                    1
+                    __LINE__,
+                    __FILE__
             );
         }
     }

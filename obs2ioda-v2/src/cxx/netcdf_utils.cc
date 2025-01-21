@@ -9,7 +9,7 @@ namespace Obs2Ioda {
             int netcdfID,
             const char *groupName
     ) {
-        auto file = NETCDF_FILE_MAP[netcdfID];
+        auto file = FileMap::getInstance().getFile(netcdfID);
         if (groupName != nullptr) {
             return std::make_shared<netCDF::NcGroup>(file->getGroup(groupName));
         }
@@ -30,34 +30,5 @@ namespace Obs2Ioda {
                 strippedName.end()
         );
         return strippedName;
-    }
-
-
-    std::string getIodaName(
-            const char *name,
-            const std::unordered_map<
-                    std::string,
-                    std::string
-            > &iodaNameMap
-    ) {
-        // Remove white spaces from the name
-        std::string iodaName = removeWhiteSpace(name);
-
-        // Check if the name exists in the map
-        if (iodaNameMap.find(iodaName) != iodaNameMap.end()) {
-            return iodaNameMap.at(iodaName);
-        }
-        return iodaName;
-    }
-
-    int netcdfErrorMessage(
-            netCDF::exceptions::NcException &e,
-            int errorCode
-    ) {
-        std::cerr
-                << "NetCDF Error: "
-                << e.what()
-                << std::endl;
-        return errorCode;
     }
 }
