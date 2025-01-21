@@ -107,6 +107,9 @@ TEST_F(NetCDFTestFixture, NetCDFAddGroupTest) {
     EXPECT_EQ(status, 0);
 }
 
+/**
+ * @brief Test case for adding dimensions to NetCDF files using Obs2Ioda functionality.
+ */
 TEST_F(NetCDFTestFixture, NetCDFAddDimTest) {
         int netcdfID{};
         int status = Obs2Ioda::netcdfCreate(
@@ -138,6 +141,9 @@ TEST_F(NetCDFTestFixture, NetCDFAddDimTest) {
         EXPECT_EQ(status, 0);
 }
 
+/**
+ * @brief Test case for adding variables to NetCDF files using Obs2Ioda functionality.
+ */
 TEST_F(NetCDFTestFixture, NetCDFAddVarTest) {
     int netcdfID{};
     int status = Obs2Ioda::netcdfCreate(

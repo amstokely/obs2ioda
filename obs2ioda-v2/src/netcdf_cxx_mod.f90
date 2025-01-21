@@ -122,4 +122,184 @@ contains
         netcdfAddGroup = c_netcdfAddGroup(netcdfID, c_parentGroupName, c_groupName)
     end function netcdfAddGroup
 
+    ! netcdfAddDim:
+    !   Adds a new dimension to a NetCDF file, either in the root group or a specified group.
+    !   This function provides a Fortran interface for adding dimensions, wrapping the
+    !   lower-level `c_netcdfAddDim` binding to simplify usage in Fortran programs.
+    !
+    !   Arguments:
+    !     - netcdfID (integer(c_int), intent(in), value):
+    !       The identifier of the NetCDF file to which the dimension will be added.
+    !     - dimName (character(len=*), intent(in)):
+    !       The name of the new dimension to be created.
+    !     - len (integer(c_int), intent(in), value):
+    !       The length of the dimension. Use `NC_UNLIMITED` for unlimited dimensions.
+    !     - groupName (character(len=*), intent(in), optional):
+    !       The name of the group in which the dimension will be created. If not provided,
+    !       the dimension will be added to the root group.
+    !
+    !   Returns:
+    !     - integer(c_int): Status code indicating the result of the operation:
+    !         - 0: Success.
+    !         - Non-zero: Failure, with errors handled by the underlying C++ implementation.
+    !
+    !   Notes:
+    !     - The function automatically handles the conversion of Fortran strings (`dimName`
+    !       and `groupName`) to C-compatible null-terminated strings.
+    !     - If `groupName` is not provided, the dimension is added to the root group by passing
+    !       `c_null_ptr` to the underlying C binding.
+    !
+    !   Example Usage:
+    !   ```
+    !   integer(c_int) :: netcdfID, status
+    !   character(len=256) :: dimName, groupName
+    !   dimName = "time"
+    !   groupName = "group1"
+    !   status = netcdfAddDim(netcdfID, dimName, 100, groupName)
+    !   if (status /= 0) then
+    !       ! Handle error
+    !   endif
+    !   ```
+    function netcdfAddDim(netcdfID, dimName, len, groupName)
+        integer(c_int), value, intent(in) :: netcdfID
+        character(len = *), intent(in) :: dimName
+        integer(c_int), value, intent(in) :: len
+        character(len = *), optional, intent(in) :: groupName
+        integer(c_int) :: netcdfAddDim
+        type(c_ptr) :: c_groupName
+        type(c_ptr) :: c_dimName
+        type(f_c_string_t) :: f_c_string_groupName
+        type(f_c_string_t) :: f_c_string_dimName
+
+        if (present(groupName)) then
+            c_groupName = f_c_string_groupName%to_c(groupName)
+        else
+            c_groupName = c_null_ptr
+        end if
+        c_dimName = f_c_string_dimName%to_c(dimName)
+
+        netcdfAddDim = c_netcdfAddDim(netcdfID, c_groupName, c_dimName, len)
+    end function netcdfAddDim
+
+    ! netcdfAddVar:
+    !   Adds a new variable to a NetCDF file, specifying its name, type, dimensions, and target group.
+    !   This function provides a Fortran interface for defining variables, wrapping the
+    !   lower-level `c_netcdfAddVar` binding to simplify usage in Fortran programs.
+    !
+    !   Arguments:
+    !     - netcdfID (integer(c_int), intent(in), value):
+    !       The identifier of the NetCDF file to which the variable will be added.
+    !     - varName (character(len=*), intent(in)):
+    !       The name of the new variable to be created.
+    !     - netcdfDataType (integer(c_int), intent(in), value):
+    !       The data type of the variable, using NetCDF predefined constants (e.g., `NF90_INT`, `NF90_REAL`).
+    !     - numDims (integer(c_int), intent(in), value):
+    !       The number of dimensions associated with the variable.
+    !     - dimNames (character(len=*), dimension(numDims), intent(in)):
+    !       An array of dimension names that define the variable's shape.
+    !     - groupName (character(len=*), optional, intent(in)):
+    !       The name of the group in which the variable will be created. If not provided,
+    !       the variable will be added to the root group.
+    !
+    !   Returns:
+    !     - integer(c_int): Status code indicating the result of the operation:
+    !         - 0: Success.
+    !         - Non-zero: Failure, with errors handled by the underlying C++ implementation.
+    !
+    !   Notes:
+    !     - The function automatically handles the conversion of Fortran strings (`varName`,
+    !       `dimNames`, and `groupName`) to C-compatible null-terminated strings.
+    !     - If `groupName` is not provided, the variable is added to the root group by passing
+    !       `c_null_ptr` to the underlying C binding.
+    function netcdfAddVar(netcdfID, varName, netcdfDataType, numDims, dimNames, groupName)
+        integer(c_int), value, intent(in) :: netcdfID
+        character(len = *), intent(in) :: varName
+        integer(c_int), value, intent(in) :: netcdfDataType
+        integer(c_int), value, intent(in) :: numDims
+        character(len = *), dimension(numDims), intent(in) :: dimNames
+        character(len = *), optional, intent(in) :: groupName
+        integer(c_int) :: netcdfAddVar
+        type(c_ptr) :: c_groupName
+        type(c_ptr) :: c_varName
+        type(c_ptr) :: c_dimNames
+        type(f_c_string_t) :: f_c_string_groupName
+        type(f_c_string_t) :: f_c_string_varName
+        type(f_c_string_1D_t) :: f_c_string_1D_dimNames
+
+        if (present(groupName)) then
+            c_groupName = f_c_string_groupName%to_c(groupName)
+        else
+            c_groupName = c_null_ptr
+        end if
+        c_varName = f_c_string_varName%to_c(varName)
+        c_dimNames = f_c_string_1D_dimNames%to_c(dimNames)
+        netcdfAddVar = c_netcdfAddVar(netcdfID, c_groupName, c_varName, &
+                netcdfDataType, numDims, c_dimNames)
+    end function netcdfAddVar
+
+    ! netcdfPutVar:
+    !   Writes data to a variable in a NetCDF file. This function supports variables
+    !   with different data types (e.g., integers, floats, strings) and allows writing
+    !   data to variables in specific groups or the root group.
+    !
+    !   Arguments:
+    !     - netcdfID (integer(c_int), intent(in), value):
+    !       The identifier of the NetCDF file where the data will be written.
+    !     - varName (character(len=*), intent(in)):
+    !       The name of the variable to which data will be written.
+    !     - data (class(*), dimension(:), intent(in)):
+    !       The data to be written to the variable. Supported types include:
+    !         - integer(c_int), integer(c_long), real(c_float), and character(len=*).
+    !     - groupName (character(len=*), optional, intent(in)):
+    !       The name of the group containing the variable. If not provided, the variable
+    !       is assumed to be in the root group.
+    !
+    !   Returns:
+    !     - integer(c_int): Status code indicating the result of the operation:
+    !         - 0: Success.
+    !         - Non-zero: Failure, with errors handled by the underlying C++ implementation.
+    !
+    !   Notes:
+    !     - The function automatically handles data type conversions and memory allocation
+    !       for transferring data between Fortran and the C++ NetCDF API.
+    !     - For strings, `f_c_string_1D_t` is used to manage conversion of Fortran arrays
+    !       to C-compatible null-terminated strings.
+    function netcdfPutVar(netcdfID, varName, data, groupName)
+        integer(c_int), value, intent(in) :: netcdfID
+        character(len = *), intent(in) :: varName
+        class(*), dimension(:), intent(in) :: data
+        character(len = *), optional, intent(in) :: groupName
+        integer(c_int) :: netcdfPutVar
+        type(f_c_string_t) :: f_c_string_groupName
+        type(f_c_string_t) :: f_c_string_varName
+        type(c_ptr) :: c_groupName
+        type(c_ptr) :: c_varName
+        type(c_ptr) :: c_data
+        type(f_c_string_1D_t) :: f_c_string_1D_data
+
+        c_varName = f_c_string_varName%to_c(varName)
+
+        select type (data)
+        type is (integer(c_int))
+            c_data = c_loc(data)
+            netcdfPutVar = c_netcdfPutVarInt(netcdfID, c_groupName, &
+                    c_varName, c_data)
+
+        type is (integer(c_long))
+            c_data = c_loc(data)
+            netcdfPutVar = c_netcdfPutVarInt64(netcdfID, c_groupName, &
+                    c_varName, c_data)
+
+        type is (real(c_float))
+            c_data = c_loc(data)
+            netcdfPutVar = c_netcdfPutVarReal(netcdfID, c_groupName, &
+                    c_varName, c_data)
+
+        type is (character(len = *))
+            c_data = f_c_string_1D_data%to_c(data)
+            netcdfPutVar = c_netcdfPutVarString(netcdfID, c_groupName, &
+                    c_varName, c_data)
+        end select
+    end function netcdfPutVar
+
 end module netcdf_cxx_mod

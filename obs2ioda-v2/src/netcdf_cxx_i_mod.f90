@@ -95,6 +95,44 @@ module netcdf_cxx_i_mod
             integer(c_int) :: c_netcdfAddGroup
         end function c_netcdfAddGroup
 
+        ! c_netcdfAddDim:
+        !   Adds a new dimension to a NetCDF file, either in the root group or a specified group.
+        !   This function is a Fortran binding to the C++ implementation of `netcdfAddDim`, allowing
+        !   seamless integration with the NetCDF C++ API for creating dimensions.
+        !
+        !   Arguments:
+        !     - netcdfID (integer(c_int), intent(in), value):
+        !       The identifier of the NetCDF file to which the dimension will be added.
+        !     - groupName (type(c_ptr), intent(in), value):
+        !       A C pointer to a null-terminated string specifying the name of the group
+        !       where the dimension will be created. If targeting the root group, pass `c_null_ptr`.
+        !     - dimName (type(c_ptr), intent(in), value):
+        !       A C pointer to a null-terminated string specifying the name of the new dimension.
+        !     - len (integer(c_int), intent(in), value):
+        !       The length of the dimension. Use `NC_UNLIMITED` for unlimited dimensions.
+        !
+        !   Returns:
+        !     - integer(c_int): Status code indicating the result of the operation:
+        !         - 0: Success.
+        !         - Non-zero: Failure, with errors handled by the underlying C++ implementation.
+        !
+        !   Notes:
+        !     - The function assumes that `netcdfID` is valid and corresponds to an open NetCDF file.
+        !     - Both `groupName` and `dimName` must be valid C pointers pointing to null-terminated strings.
+        !     - Fortran developers should use appropriate utilities (e.g., `f_c_string_t`) to manage
+        !       string conversions when calling this function.
+        !
+        !   Example Usage:
+        !   ```
+        !   integer(c_int) :: netcdfID, status
+        !   type(f_c_string_t) :: f_groupName, f_dimName
+        !   f_groupName%to_c("group1")
+        !   f_dimName%to_c("time")
+        !   status = c_netcdfAddDim(netcdfID, f_groupName%ptr, f_dimName%ptr, 100)
+        !   if (status /= 0) then
+        !       ! Handle error
+        !   endif
+        !   ```
         function c_netcdfAddDim(&
                 netcdfID, groupName, dimName, len) &
                 bind(C, name = "netcdfAddDim")
@@ -107,6 +145,31 @@ module netcdf_cxx_i_mod
             integer(c_int) :: c_netcdfAddDim
         end function c_netcdfAddDim
 
+        ! c_netcdfAddVar:
+        !   Adds a new variable to a NetCDF file, specifying its name, type, and associated dimensions.
+        !   This is a C binding for the NetCDF C++ API that allows variable creation.
+        !
+        !   Arguments:
+        !     - netcdfID (integer(c_int), intent(in), value):
+        !       The identifier of the NetCDF file where the variable will be created.
+        !     - groupName (type(c_ptr), intent(in), value):
+        !       A C pointer to a null-terminated string specifying the group name. If `c_null_ptr`,
+        !       the variable is added to the root group.
+        !     - varName (type(c_ptr), intent(in), value):
+        !       A C pointer to a null-terminated string specifying the variable name.
+        !     - netcdfDataType (integer(c_int), intent(in), value):
+        !       The NetCDF data type of the variable (e.g., `NF90_INT`, `NF90_REAL`).
+        !     - numDims (integer(c_int), intent(in), value):
+        !       The number of dimensions associated with the variable.
+        !     - dimNames (type(c_ptr), intent(in), value):
+        !       A C pointer to an array of null-terminated strings representing the dimension names.
+        !
+        !   Returns:
+        !     - integer(c_int): Status code indicating success (0) or failure (non-zero).
+        !
+        !   Notes:
+        !     - This function assumes that `netcdfID` corresponds to a valid NetCDF file.
+        !     - All strings must be null-terminated and passed as C pointers.
         function c_netcdfAddVar(&
                 netcdfID, groupName, varName, netcdfDataType, numDims, dimNames) &
                 bind(C, name = "netcdfAddVar")
@@ -121,6 +184,25 @@ module netcdf_cxx_i_mod
             integer(c_int) :: c_netcdfAddVar
         end function c_netcdfAddVar
 
+        ! c_netcdfPutVarInt:
+        !   Writes integer data to a NetCDF variable in the specified group or root group.
+        !
+        !   Arguments:
+        !     - netcdfID (integer(c_int), intent(in), value):
+        !       The identifier of the NetCDF file.
+        !     - groupName (type(c_ptr), intent(in), value):
+        !       A C pointer to a null-terminated string specifying the group name. If `c_null_ptr`,
+        !       the variable is assumed to be in the root group.
+        !     - varName (type(c_ptr), intent(in), value):
+        !       A C pointer to a null-terminated string specifying the variable name.
+        !     - data (type(c_ptr), intent(in), value):
+        !       A C pointer to the array of integer data to be written.
+        !
+        !   Returns:
+        !     - integer(c_int): Status code indicating success (0) or failure (non-zero).
+        !
+        !   Notes:
+        !     - This function writes integer (`c_int`) data. Ensure the data array matches the variable's type.
         function c_netcdfPutVarInt(&
                 netcdfID, groupName, varName, data) &
                 bind(C, name = "netcdfPutVarInt")
@@ -133,6 +215,22 @@ module netcdf_cxx_i_mod
             integer(c_int) :: c_netcdfPutVarInt
         end function c_netcdfPutVarInt
 
+        ! c_netcdfPutVarInt64:
+        !   Writes 64-bit integer data to a NetCDF variable in the specified group or root group.
+        !
+        !   Arguments:
+        !     - netcdfID (integer(c_int), intent(in), value):
+        !       The identifier of the NetCDF file.
+        !     - groupName (type(c_ptr), intent(in), value):
+        !       A C pointer to a null-terminated string specifying the group name. If `c_null_ptr`,
+        !       the variable is assumed to be in the root group.
+        !     - varName (type(c_ptr), intent(in), value):
+        !       A C pointer to a null-terminated string specifying the variable name.
+        !     - data (type(c_ptr), intent(in), value):
+        !       A C pointer to the array of 64-bit integer data to be written.
+        !
+        !   Returns:
+        !     - integer(c_int): Status code indicating success (0) or failure (non-zero).
         function c_netcdfPutVarInt64(&
                 netcdfID, groupName, varName, data) &
                 bind(C, name = "netcdfPutVarInt64")
@@ -145,7 +243,22 @@ module netcdf_cxx_i_mod
             integer(c_int) :: c_netcdfPutVarInt64
         end function c_netcdfPutVarInt64
 
-
+        ! c_netcdfPutVarReal:
+        !   Writes real (floating-point) data to a NetCDF variable in the specified group or root group.
+        !
+        !   Arguments:
+        !     - netcdfID (integer(c_int), intent(in), value):
+        !       The identifier of the NetCDF file.
+        !     - groupName (type(c_ptr), intent(in), value):
+        !       A C pointer to a null-terminated string specifying the group name. If `c_null_ptr`,
+        !       the variable is assumed to be in the root group.
+        !     - varName (type(c_ptr), intent(in), value):
+        !       A C pointer to a null-terminated string specifying the variable name.
+        !     - data (type(c_ptr), intent(in), value):
+        !       A C pointer to the array of real data to be written.
+        !
+        !   Returns:
+        !     - integer(c_int): Status code indicating success (0) or failure (non-zero).
         function c_netcdfPutVarReal(&
                 netcdfID, groupName, varName, data) &
                 bind(C, name = "netcdfPutVarReal")
@@ -158,6 +271,25 @@ module netcdf_cxx_i_mod
             integer(c_int) :: c_netcdfPutVarReal
         end function c_netcdfPutVarReal
 
+        ! c_netcdfPutVarString:
+        !   Writes string data to a NetCDF variable in the specified group or root group.
+        !
+        !   Arguments:
+        !     - netcdfID (integer(c_int), intent(in), value):
+        !       The identifier of the NetCDF file.
+        !     - groupName (type(c_ptr), intent(in), value):
+        !       A C pointer to a null-terminated string specifying the group name. If `c_null_ptr`,
+        !       the variable is assumed to be in the root group.
+        !     - varName (type(c_ptr), intent(in), value):
+        !       A C pointer to a null-terminated string specifying the variable name.
+        !     - data (type(c_ptr), intent(in), value):
+        !       A C pointer to the array of strings to be written.
+        !
+        !   Returns:
+        !     - integer(c_int): Status code indicating success (0) or failure (non-zero).
+        !
+        !   Notes:
+        !     - Ensure that the data array contains valid C-style null-terminated strings.
         function c_netcdfPutVarString(&
                 netcdfID, groupName, varName, data) &
                 bind(C, name = "netcdfPutVarString")
