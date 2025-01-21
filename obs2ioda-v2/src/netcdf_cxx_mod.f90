@@ -122,4 +122,64 @@ contains
         netcdfAddGroup = c_netcdfAddGroup(netcdfID, c_parentGroupName, c_groupName)
     end function netcdfAddGroup
 
+    ! netcdfAddDim:
+    !   Adds a new dimension to a NetCDF file, either in the root group or a specified group.
+    !   This function provides a Fortran interface for adding dimensions, wrapping the
+    !   lower-level `c_netcdfAddDim` binding to simplify usage in Fortran programs.
+    !
+    !   Arguments:
+    !     - netcdfID (integer(c_int), intent(in), value):
+    !       The identifier of the NetCDF file to which the dimension will be added.
+    !     - dimName (character(len=*), intent(in)):
+    !       The name of the new dimension to be created.
+    !     - len (integer(c_int), intent(in), value):
+    !       The length of the dimension. Use `NC_UNLIMITED` for unlimited dimensions.
+    !     - groupName (character(len=*), intent(in), optional):
+    !       The name of the group in which the dimension will be created. If not provided,
+    !       the dimension will be added to the root group.
+    !
+    !   Returns:
+    !     - integer(c_int): Status code indicating the result of the operation:
+    !         - 0: Success.
+    !         - Non-zero: Failure, with errors handled by the underlying C++ implementation.
+    !
+    !   Notes:
+    !     - The function automatically handles the conversion of Fortran strings (`dimName`
+    !       and `groupName`) to C-compatible null-terminated strings.
+    !     - If `groupName` is not provided, the dimension is added to the root group by passing
+    !       `c_null_ptr` to the underlying C binding.
+    !
+    !   Example Usage:
+    !   ```
+    !   integer(c_int) :: netcdfID, status
+    !   character(len=256) :: dimName, groupName
+    !   dimName = "time"
+    !   groupName = "group1"
+    !   status = netcdfAddDim(netcdfID, dimName, 100, groupName)
+    !   if (status /= 0) then
+    !       ! Handle error
+    !   endif
+    !   ```
+    function netcdfAddDim(netcdfID, dimName, len, groupName)
+        integer(c_int), value, intent(in) :: netcdfID
+        character(len = *), intent(in) :: dimName
+        integer(c_int), value, intent(in) :: len
+        character(len = *), optional, intent(in) :: groupName
+        integer(c_int) :: netcdfAddDim
+        type(c_ptr) :: c_groupName
+        type(c_ptr) :: c_dimName
+        type(f_c_string_t) :: f_c_string_groupName
+        type(f_c_string_t) :: f_c_string_dimName
+
+        if (present(groupName)) then
+            c_groupName = f_c_string_groupName%to_c(groupName)
+        else
+            c_groupName = c_null_ptr
+        end if
+        c_dimName = f_c_string_dimName%to_c(dimName)
+
+        netcdfAddDim = c_netcdfAddDim(netcdfID, c_groupName, c_dimName, len)
+
+    end function netcdfAddDim
+
 end module netcdf_cxx_mod

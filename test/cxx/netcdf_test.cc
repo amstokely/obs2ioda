@@ -105,6 +105,11 @@ TEST_F(NetCDFTestFixture, NetCDFAddGroupTest) {
     status = Obs2Ioda::netcdfClose(netcdfID);
     EXPECT_EQ(status, 0);
 }
+
+/**
+ * @brief Tests creating a NetCDF file, adding a group, and adding dimensions to both the root group and a specific group.
+ */
+
 TEST_F(NetCDFTestFixture, NetCDFAddDimTest) {
     int netcdfID{};
     int status = Obs2Ioda::netcdfCreate(

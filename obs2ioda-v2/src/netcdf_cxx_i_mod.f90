@@ -1,9 +1,6 @@
 module netcdf_cxx_i_mod
     use iso_c_binding
     implicit none
-    public
-
-
 
     interface
         ! c_netcdfCreate:
@@ -95,6 +92,44 @@ module netcdf_cxx_i_mod
             integer(c_int) :: c_netcdfAddGroup
         end function c_netcdfAddGroup
 
+        ! c_netcdfAddDim:
+        !   Adds a new dimension to a NetCDF file, either in the root group or a specified group.
+        !   This function is a Fortran binding to the C++ implementation of `netcdfAddDim`, allowing
+        !   seamless integration with the NetCDF C++ API for creating dimensions.
+        !
+        !   Arguments:
+        !     - netcdfID (integer(c_int), intent(in), value):
+        !       The identifier of the NetCDF file to which the dimension will be added.
+        !     - groupName (type(c_ptr), intent(in), value):
+        !       A C pointer to a null-terminated string specifying the name of the group
+        !       where the dimension will be created. If targeting the root group, pass `c_null_ptr`.
+        !     - dimName (type(c_ptr), intent(in), value):
+        !       A C pointer to a null-terminated string specifying the name of the new dimension.
+        !     - len (integer(c_int), intent(in), value):
+        !       The length of the dimension. Use `NC_UNLIMITED` for unlimited dimensions.
+        !
+        !   Returns:
+        !     - integer(c_int): Status code indicating the result of the operation:
+        !         - 0: Success.
+        !         - Non-zero: Failure, with errors handled by the underlying C++ implementation.
+        !
+        !   Notes:
+        !     - The function assumes that `netcdfID` is valid and corresponds to an open NetCDF file.
+        !     - Both `groupName` and `dimName` must be valid C pointers pointing to null-terminated strings.
+        !     - Fortran developers should use appropriate utilities (e.g., `f_c_string_t`) to manage
+        !       string conversions when calling this function.
+        !
+        !   Example Usage:
+        !   ```
+        !   integer(c_int) :: netcdfID, status
+        !   type(f_c_string_t) :: f_groupName, f_dimName
+        !   f_groupName%to_c("group1")
+        !   f_dimName%to_c("time")
+        !   status = c_netcdfAddDim(netcdfID, f_groupName%ptr, f_dimName%ptr, 100)
+        !   if (status /= 0) then
+        !       ! Handle error
+        !   endif
+        !   ```
         function c_netcdfAddDim(&
                 netcdfID, groupName, dimName, len) &
                 bind(C, name = "netcdfAddDim")
@@ -106,7 +141,6 @@ module netcdf_cxx_i_mod
             integer(c_int), value, intent(in) :: len
             integer(c_int) :: c_netcdfAddDim
         end function c_netcdfAddDim
-
 
     end interface
 

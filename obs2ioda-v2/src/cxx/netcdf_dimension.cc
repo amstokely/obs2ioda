@@ -1,6 +1,7 @@
 #include "netcdf_dimension.h"
 #include "netcdf_utils.h"
 #include "netcdf_file.h"
+#include "netcdf_error.h"
 
 namespace Obs2Ioda
 {
@@ -13,10 +14,10 @@ namespace Obs2Ioda
     {
         try
         {
-            std::lock_guard<std::mutex> lock(map_mutex);
-            auto file = NETCDF_FILE_MAP[netcdfID];
+            std::lock_guard lock(sharedMutex);
+            auto file = FileMap::getInstance().getFile(netcdfID);
             auto group = getRootGroup(netcdfID, groupName);
-            group->addDim(
+            auto dim = group->addDim(
                 dimName,
                 len
             );
@@ -26,7 +27,8 @@ namespace Obs2Ioda
         {
             return netcdfErrorMessage(
                 e,
-                1
+                __LINE__,
+                __FILE__
             );
         }
     }
