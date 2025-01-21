@@ -2,6 +2,7 @@
 #include "netcdf_file.h"
 #include <gtest/gtest.h>
 #include <filesystem>
+#include <thread>
 
 /**
  * @brief Test case for creating, managing, and closing NetCDF files using Obs2Ioda functionality.
@@ -43,6 +44,8 @@
  */
 TEST_F(NetCDFTestFixture, NetCDFCreateTest) {
     int netcdfID{};
+    std::shared_mutex mutex;
+    std::lock_guard lock(mutex);
     // Test that netcdfCreate successfully creates a NetCDF file
     int status = Obs2Ioda::netcdfCreate(
         this->test_file_path.c_str(),

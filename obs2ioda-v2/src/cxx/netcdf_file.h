@@ -7,13 +7,10 @@
 #include <shared_mutex>
 
 namespace Obs2Ioda {
+    extern std::shared_mutex sharedMutex;
 /**
  * @class FileMap
- * @brief Singleton class for managing a thread-safe mapping of NetCDF file IDs to file objects.
- *
- * This class ensures thread-safe operations on a map that associates unique NetCDF IDs with
- * `std::shared_ptr` instances of `netCDF::NcFile`. It provides methods to add, remove, and
- * retrieve files, while enforcing singleton usage.
+ * @brief Singleton class for managing a mapping of NetCDF file IDs to file objects.
  */
 class FileMap {
 public:
@@ -73,14 +70,6 @@ public:
      */
     std::shared_ptr<netCDF::NcFile> getFile(int netcdfID);
 
-    /**
-     * @brief Retrieves the shared mutex for the NetCDF file map. Due to NetCDF's lack of thread safety,
-     * the user is responsible for using this mutex when necessary.
-     *
-     * @return A reference to the shared mutex for the NetCDF file map.
-     */
-    std::shared_mutex& getMutex();
-
 private:
     /**
      * @brief Private constructor to prevent direct instantiation.
@@ -88,10 +77,7 @@ private:
     FileMap() = default;
 
     /// Map associating NetCDF file IDs with their corresponding shared pointers to NetCDF files.
-    std::unordered_map<int, std::shared_ptr<netCDF::NcFile>> netcdfFileMap;
-
-    /// Shared mutex to ensure thread-safe access to the map.
-    std::shared_mutex netcdfFileMapMutex;
+    std::unordered_map<int, std::shared_ptr<netCDF::NcFile>> fileMap;
 };
 
 
