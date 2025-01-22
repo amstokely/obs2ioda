@@ -42,14 +42,14 @@
  * @see Obs2Ioda::netcdfClose
  * @see Obs2Ioda::FileMap
  */
-TEST_F(NetCDFTestFixture, NetCDFCreateTest) {
+TEST_F(NetCDFTestFixture, NetCDFCreateReplaceModeTest) {
     int netcdfID{};
-    std::shared_mutex mutex;
-    std::lock_guard lock(mutex);
+    int fileMode = netCDF::NcFile::replace;
     // Test that netcdfCreate successfully creates a NetCDF file
     int status = Obs2Ioda::netcdfCreate(
         this->test_file_path.c_str(),
-        &netcdfID
+        &netcdfID,
+        static_cast<netCDF::NcFile::FileMode>(fileMode)
     );
     EXPECT_EQ(status, 0);
     // Test that the NetCDF file exists on the filesystem
@@ -57,7 +57,8 @@ TEST_F(NetCDFTestFixture, NetCDFCreateTest) {
     // Test that the NcCantCreate exception is thrown when adding a file with an existing ID
     status = Obs2Ioda::netcdfCreate(
         this->test_file_path.c_str(),
-        &netcdfID
+        &netcdfID,
+        static_cast<netCDF::NcFile::FileMode>(fileMode)
     );
     EXPECT_EQ(status, 13);
     // Test that the NcCantCreate exception is thrown when adding a file to FileMap with an existing ID

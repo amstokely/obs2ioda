@@ -55,7 +55,7 @@ namespace Obs2Ioda {
         try {
             const auto file = std::make_shared<netCDF::NcFile>(
                 path,
-                netCDF::NcFile::replace
+                static_cast<netCDF::NcFile::FileMode>(fileMode)
             );
             *netcdfID = file->getId();
             FileMap::getInstance().addFile(
