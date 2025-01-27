@@ -2,7 +2,7 @@
 # -ffree-line-length-none: Remove the limit on the length of lines in the source file
 # -mcmodel=medium: Allow for larger datasets in memory
 set(FORTRAN_COMPILER_GNU_FLAGS
-    $<$<COMPILE_LANGUAGE:Fortran>:-ffree-line-length-none -mcmodel=medium>
+    $<$<COMPILE_LANGUAGE:Fortran>:-ffree-line-length-none>
 )
 
 # Set Debugging Fortran compiler flags specific to the GNU Compiler
@@ -17,7 +17,7 @@ set(FORTRAN_COMPILER_GNU_DEBUG_FLAGS
 # Set Fortran compiler flags for the Intel Compiler
 # -mcmodel=medium: Allow for larger datasets in memory
 set(FORTRAN_COMPILER_INTEL_FLAGS
-    $<$<COMPILE_LANGUAGE:Fortran>:-mcmodel=medium>
+    $<$<COMPILE_LANGUAGE:Fortran>:>
 )
 
 # Set Debugging Fortran compiler flags for the Intel Compiler

@@ -12,7 +12,7 @@ function(obs2ioda_fortran_target target target_main)
 
     # Compiler-specific options and flags
     set(OBS2IODA_FORTRAN_TARGET_COMPILE_OPTIONS_PRIVATE
-        $<$<COMPILE_LANGUAGE:Fortran>:-mcmodel=medium>
+        $<$<COMPILE_LANGUAGE:Fortran>:-mcmodel=small>
     )
     if (CMAKE_Fortran_COMPILER_ID MATCHES GNU)
         list(APPEND OBS2IODA_FORTRAN_TARGET_COMPILE_OPTIONS_PRIVATE

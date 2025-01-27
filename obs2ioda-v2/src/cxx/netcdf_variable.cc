@@ -81,6 +81,20 @@ namespace Obs2Ioda {
             const float *
     );
 
+        template int netcdfPutVar<long long>(
+            int,
+            const char *,
+            const char *,
+            const long long *
+        );
+
+        template int netcdfPutVar<const char*>(
+            int,
+            const char *,
+            const char *,
+            const char * const *
+        );
+
     int netcdfAddVar(
             int netcdfID,
             const char *groupName,
