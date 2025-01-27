@@ -27,3 +27,13 @@ add_test(
         NAME check_variables_test
         COMMAND check_variables --gtest_filter=*
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+
+set(check_attributes_SOURCES
+        check_attributes.cc
+)
+add_executable(check_attributes ${check_attributes_SOURCES})
+target_link_libraries(check_attributes PUBLIC netcdf_cxx GTest::gmock_main)
+add_test(
+        NAME check_attributes_test
+        COMMAND check_attributes --gtest_filter=*
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})

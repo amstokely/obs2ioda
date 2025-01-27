@@ -32,6 +32,133 @@ void expectEqualVector(const std::vector<T> &reference,
     }
 }
 
+void checkAllGroupVariableFillValues(const std::string &referencePath,
+                                     const std::string &testPath) {
+    netCDF::NcFile referenceFile(referencePath, netCDF::NcFile::read);
+    netCDF::NcFile testFile(testPath, netCDF::NcFile::read);
+
+    auto gatherVariableFillValues = [](const netCDF::NcGroup &group,
+                                       const std::vector<std::string> &
+                                       ignoreList) {
+        std::map<std::string, std::pair<std::string, char *> >
+                fillModeValues;
+        for (const auto &var: group.getVars()) {
+            if (std::find(ignoreList.begin(), ignoreList.end(),
+                          var.second.getName()) == ignoreList.end()) {
+                bool fillMode;
+                const std::string intString = "int";
+                const std::string floatString = "float";
+                const std::string stringString = "string";
+                const std::string varTypeNameStr = var.second.getType().
+                        getName();
+                std::stringstream keySS;
+                keySS << var.second.getName() << "_" << group.getName();
+                auto key = keySS.str();
+                if (varTypeNameStr == intString) {
+                    int fillValue;
+                    var.second.getFillModeParameters(
+                        fillMode, fillValue);
+                    fillModeValues[key] =
+                            std::make_pair(
+                                varTypeNameStr, new char[sizeof(int)]);
+                    std::memcpy(
+                        fillModeValues[key].second,
+                        &fillValue, sizeof(int));
+                }
+                if (varTypeNameStr == floatString) {
+                    float fillValue;
+                    var.second.getFillModeParameters(
+                        fillMode, fillValue);
+                    fillModeValues[key] =
+                            std::make_pair(
+                                varTypeNameStr,
+                                new char[sizeof(float)]);
+                    std::memcpy(
+                        fillModeValues[key].second,
+                        &fillValue, sizeof(float));
+                }
+                if (varTypeNameStr == stringString) {
+                    std::string fillValue;
+                    var.second.getFillModeParameters(
+                        fillMode, fillValue);
+                    fillModeValues[key] =
+                            std::make_pair(
+                                varTypeNameStr,
+                                new char[fillValue.size()]);
+                    std::memcpy(
+                        fillModeValues[key].second,
+                        fillValue.c_str(), fillValue.size());
+                }
+            }
+        }
+        return fillModeValues;
+    };
+
+    // Gather variables from all groups in the reference file
+    std::map<std::string, std::pair<std::string, char *> >
+            referenceFillValues;
+    for (const auto &group: referenceFile.getGroups()) {
+        auto groupFillValues = gatherVariableFillValues(
+            group.second, IGNORE_VARIABLES);
+        referenceFillValues.insert(groupFillValues.begin(),
+                                   groupFillValues.end());
+    }
+
+    std::map<std::string, std::pair<std::string, char *> >
+            testFillValues;
+    for (const auto &group: testFile.getGroups()) {
+        auto groupFillValues = gatherVariableFillValues(
+            group.second, IGNORE_VARIABLES);
+        testFillValues.insert(groupFillValues.begin(),
+                              groupFillValues.end());
+    }
+    auto numRefKeys = referenceFillValues.size();
+    auto numTestKeys = testFillValues.size();
+    ASSERT_EQ(numRefKeys, numTestKeys) << "Mismatch in number of "
+            "variables with fill values";
+    auto refIt = referenceFillValues.begin();
+    auto testIt = testFillValues.begin();
+    for (size_t i = 0; i < numRefKeys; ++i) {
+        if (refIt->second.first == "float") {
+            float refFillValue;
+            std::memcpy(&refFillValue, refIt->second.second,
+                        sizeof(float));
+            float testFillValue;
+            std::memcpy(&testFillValue, testIt->second.second,
+                        sizeof(float));
+            EXPECT_FLOAT_EQ(refFillValue,
+                            testFillValue) << "Mismatch in fill "
+                    "value for variable " << refIt->first;
+            delete[] refIt->second.second;
+            delete[] testIt->second.second;
+        }
+        if (refIt->second.first == "int") {
+            int refFillValue;
+            std::memcpy(&refFillValue, refIt->second.second,
+                        sizeof(int));
+            int testFillValue;
+            std::memcpy(&testFillValue, testIt->second.second,
+                        sizeof(int));
+            EXPECT_EQ(refFillValue,
+                      testFillValue) << "Mismatch in fill value "
+                    "for variable " << refIt->first;
+            delete[] refIt->second.second;
+            delete[] testIt->second.second;
+        }
+        if (refIt->second.first == "string") {
+            std::string refFillValue(refIt->second.second);
+            std::string testFillValue(testIt->second.second);
+            EXPECT_EQ(refFillValue,
+                      testFillValue) << "Mismatch in fill value "
+                    "for variable " << refIt->first;
+            delete[] refIt->second.second;
+            delete[] testIt->second.second;
+        }
+        ++refIt;
+        ++testIt;
+    }
+}
+
 void checkAllGroupVariableNames(const std::string &referencePath,
                                 const std::string &testPath) {
     netCDF::NcFile referenceFile(referencePath, netCDF::NcFile::read);
@@ -82,12 +209,15 @@ void checkAllVariableAttributeNames(const std::string &referencePath,
     netCDF::NcFile referenceFile(referencePath, netCDF::NcFile::read);
     netCDF::NcFile testFile(testPath, netCDF::NcFile::read);
 
-    auto gatherAttributesFromVariables = [](const netCDF::NcGroup &group,
-                                            const std::vector<std::string> &ignoreList) {
+    auto gatherAttributesFromVariables = [](
+        const netCDF::NcGroup &group,
+        const std::vector<std::string> &ignoreList) {
         std::vector<std::string> attributeNames;
-        for (const auto &var : group.getVars()) {
-            for (const auto &attr : var.second.getAtts()) {
-                if (std::find(ignoreList.begin(), ignoreList.end(), attr.second.getName()) == ignoreList.end()) {
+        for (const auto &var: group.getVars()) {
+            for (const auto &attr: var.second.getAtts()) {
+                if (std::find(ignoreList.begin(), ignoreList.end(),
+                              attr.second.getName()) == ignoreList.
+                    end()) {
                     attributeNames.push_back(attr.second.getName());
                 }
             }
@@ -97,16 +227,22 @@ void checkAllVariableAttributeNames(const std::string &referencePath,
 
     // Gather attributes from all variables in all groups in the reference file
     std::vector<std::string> referenceAttributes;
-    for (const auto &group : referenceFile.getGroups()) {
-        auto groupAttributes = gatherAttributesFromVariables(group.second, IGNORE_ATTRIBUTES);
-        referenceAttributes.insert(referenceAttributes.end(), groupAttributes.begin(), groupAttributes.end());
+    for (const auto &group: referenceFile.getGroups()) {
+        auto groupAttributes = gatherAttributesFromVariables(
+            group.second, IGNORE_ATTRIBUTES);
+        referenceAttributes.insert(referenceAttributes.end(),
+                                   groupAttributes.begin(),
+                                   groupAttributes.end());
     }
 
     // Gather attributes from all variables in all groups in the test file
     std::vector<std::string> testAttributes;
-    for (const auto &group : testFile.getGroups()) {
-        auto groupAttributes = gatherAttributesFromVariables(group.second, IGNORE_ATTRIBUTES);
-        testAttributes.insert(testAttributes.end(), groupAttributes.begin(), groupAttributes.end());
+    for (const auto &group: testFile.getGroups()) {
+        auto groupAttributes = gatherAttributesFromVariables(
+            group.second, IGNORE_ATTRIBUTES);
+        testAttributes.insert(testAttributes.end(),
+                              groupAttributes.begin(),
+                              groupAttributes.end());
     }
 
     // Check that the gathered attribute names match
@@ -132,6 +268,12 @@ TEST_P(NetCDFTest, AllGroupVariableNamesTest) {
 TEST_P(NetCDFTest, AllVariableAttributeNamesTest) {
     const auto &[referencePath, testPath] = GetParam();
     checkAllVariableAttributeNames(referencePath, testPath);
+}
+
+// Parameterized Test Case
+TEST_P(NetCDFTest, AllGroupVariableFillValuesTest) {
+    const auto &[referencePath, testPath] = GetParam();
+    checkAllGroupVariableFillValues(referencePath, testPath);
 }
 
 // Helper Function to Generate Test Parameters

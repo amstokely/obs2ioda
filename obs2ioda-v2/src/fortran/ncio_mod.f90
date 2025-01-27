@@ -134,15 +134,17 @@ subroutine write_obs (filedate, write_opt, outdir, itim)
          ncname = 'nchans'
          nchans_nvars_flag = .true.
       end if
-      status = netcdfAddDim(netcdfID, trim(ncname), val_ncdim(1))
-      status = netcdfPutAtt(netcdfID, trim(ncname), val_ncdim(1))
+      status = netcdfAddDim(netcdfID, trim(ncname), ncid_ncdim(1))
+      status = netcdfPutAtt(netcdfID, trim(ncname), ncid_ncdim(1))
       status = netcdfAddVar(netcdfID, trim(ncname), NF90_INT, 1, [trim(ncname)])
+      status = netcdfPutAtt(netcdfID, "suggested_chunk_dim", 100, varName=trim(ncname))
 
       do i = 2, n_ncdim
          ncid_ncdim(i) = i
          status = netcdfAddDim(netcdfID, trim(name_ncdim(i)), val_ncdim(i))
          status = netcdfPutAtt(netcdfID, trim(name_ncdim(i)), val_ncdim(i))
          status = netcdfAddVar(netcdfID, trim(name_ncdim(i)), NF90_INT, 1, [trim(name_ncdim(i))])
+!         status = netcdfPutAtt(netcdfID, "suggested_chunk_dim", 100, varName=trim(name_ncdim(i)))
       end do
 
       ! define global attributes
@@ -416,6 +418,7 @@ subroutine write_obs (filedate, write_opt, outdir, itim)
       end if ! write_nc_radiance
 
       status = netcdfClose(netcdfID)
+      print *, '--- done writing ', trim(ncfname)
 
    end do obtype_loop
 
