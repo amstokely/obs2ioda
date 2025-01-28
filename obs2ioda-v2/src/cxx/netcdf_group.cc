@@ -1,28 +1,31 @@
 #include "netcdf_group.h"
-#include "netcdf_utils.h"
 #include "netcdf_file.h"
 #include "netcdf_error.h"
 
 namespace Obs2Ioda {
-
     int netcdfAddGroup(
-            int netcdfID,
-            const char *parentGroupName,
-            const char *groupName
+        int netcdfID,
+        const char *parentGroupName,
+        const char *groupName
     ) {
         try {
-            std::lock_guard lock(sharedMutex);
             auto file = FileMap::getInstance().getFile(netcdfID);
-            const auto rootGroup = getRootGroup(netcdfID, parentGroupName);
-            const auto group = rootGroup->addGroup(groupName);
+            // Use the root group (the netCDF::NcFile object) if parentGroupName is null;
+            // otherwise, use the group with the specified name.
+            const auto parentGroup = !parentGroupName
+                                         ? file
+                                         : std::make_shared<
+                                             netCDF::NcGroup>(
+                                             file->getGroup(
+                                                 parentGroupName));
+            const auto group = parentGroup->addGroup(groupName);
             return 0;
         } catch (netCDF::exceptions::NcException &e) {
             return netcdfErrorMessage(
-                    e,
-                    __LINE__,
-                    __FILE__
+                e,
+                __LINE__,
+                __FILE__
             );
         }
     }
-
 }
