@@ -107,7 +107,13 @@ TEST_F(NetCDFTestFixture, NetCDFAddGroupTest) {
             "nonexistent_group",
             this->test_nested_group_name.c_str()
     );
-    EXPECT_EQ(status, 0);
+    EXPECT_EQ(status, -1);
+    status = Obs2Ioda::netcdfAddGroup(
+            netcdfID,
+            "",
+            this->test_nested_group_name.c_str()
+    );
+    EXPECT_EQ(status, -1);
     status = Obs2Ioda::netcdfClose(netcdfID);
     EXPECT_EQ(status, 0);
 }
