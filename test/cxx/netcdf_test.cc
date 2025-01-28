@@ -101,6 +101,13 @@ TEST_F(NetCDFTestFixture, NetCDFAddGroupTest) {
             this->test_nested_group_name.c_str()
     );
     EXPECT_EQ(status, 0);
+    // Attempt to add nested group to non-existent parent group
+    status = Obs2Ioda::netcdfAddGroup(
+            netcdfID,
+            "nonexistent_group",
+            this->test_nested_group_name.c_str()
+    );
+    EXPECT_EQ(status, 0);
     status = Obs2Ioda::netcdfClose(netcdfID);
     EXPECT_EQ(status, 0);
 }
