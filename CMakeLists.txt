@@ -5,6 +5,7 @@ include("${CMAKE_SOURCE_DIR}/cmake/Obs2Ioda_Functions.cmake")
 enable_testing()
 # Define the project
 project(obs2ioda LANGUAGES Fortran CXX)
+set(CMAKE_CXX_STANDARD 20)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
@@ -22,3 +23,4 @@ find_package(NetCDF REQUIRED COMPONENTS Fortran C CXX)
 
 add_subdirectory("${CMAKE_SOURCE_DIR}/obs2ioda-v2")
 add_subdirectory("${CMAKE_SOURCE_DIR}/test")
+message(STATUS "CMAKE OS: ${CMAKE_SYSTEM_NAME}")

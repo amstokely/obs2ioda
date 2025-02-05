@@ -1,9 +1,6 @@
 #include "netcdf_variable.h"
-#include "netcdf_utils.h"
 #include "netcdf_file.h"
 #include "netcdf_error.h"
-#include <algorithm>
-#include <mutex>
 
 namespace Obs2Ioda {
     template int netcdfGetVar<int>(
@@ -61,7 +58,7 @@ namespace Obs2Ioda {
         const char *,
         const char *,
         int,
-        const char);
+        char);
 
     template int netcdfPutVar<int>(
         int,
@@ -86,12 +83,13 @@ namespace Obs2Ioda {
         const char **dimNames
     ) {
         try {
-            std::lock_guard lock(sharedMutex);
-            auto group = getRootGroup(
-                netcdfID,
-                groupName
-            );
             auto file = FileMap::getInstance().getFile(netcdfID);
+            const auto group = !groupName
+                                   ? file
+                                   : std::make_shared<
+                                       netCDF::NcGroup>(
+                                       file->getGroup(
+                                           groupName));
             std::vector<netCDF::NcDim> dims;
             dims.reserve(numDims);
             for (int i = 0; i < numDims; i++) {
@@ -120,12 +118,13 @@ namespace Obs2Ioda {
         const T *data
     ) {
         try {
-            std::lock_guard lock(sharedMutex);
             auto file = FileMap::getInstance().getFile(netcdfID);
-            std::shared_ptr<netCDF::NcGroup> group = getRootGroup(
-                netcdfID,
-                groupName
-            );
+            const auto group = !groupName
+                                   ? file
+                                   : std::make_shared<
+                                       netCDF::NcGroup>(
+                                       file->getGroup(
+                                           groupName));
             auto var = group->getVar(varName);
             var.putVar(data);
             return 0;
@@ -203,12 +202,13 @@ namespace Obs2Ioda {
         T **data
     ) {
         try {
-            std::lock_guard lock(sharedMutex);
             auto file = FileMap::getInstance().getFile(netcdfID);
-            auto group = getRootGroup(
-                netcdfID,
-                groupName
-            );
+            const auto group = !groupName
+                                   ? file
+                                   : std::make_shared<
+                                       netCDF::NcGroup>(
+                                       file->getGroup(
+                                           groupName));
             auto var = group->getVar(varName);
             const std::vector<size_t> start = {0};
             const std::vector<size_t> count = {var.getDim(0).getSize()};
@@ -236,12 +236,13 @@ namespace Obs2Ioda {
         T fillValue
     ) {
         try {
-            std::lock_guard lock(sharedMutex);
             auto file = FileMap::getInstance().getFile(netcdfID);
-            std::shared_ptr<netCDF::NcGroup> group = getRootGroup(
-                netcdfID,
-                groupName
-            );
+            const auto group = !groupName
+                                   ? file
+                                   : std::make_shared<
+                                       netCDF::NcGroup>(
+                                       file->getGroup(
+                                           groupName));
             auto var = group->getVar(varName);
             var.setFill(
                 fillMode,
@@ -328,13 +329,18 @@ namespace Obs2Ioda {
         const char *varName,
         char ***data
     ) {
-        std::lock_guard lock(sharedMutex);
-        auto file = FileMap::getInstance().getFile(netcdfID);
+            auto file = FileMap::getInstance().getFile(netcdfID);
+            const auto group = !groupName
+                                   ? file
+                                   : std::make_shared<
+                                       netCDF::NcGroup>(
+                                       file->getGroup(
+                                           groupName));
         auto dims = file->getVar(varName).getDims();
         auto var = file->getVar(varName);
         size_t numStrings = dims[0].getSize();
         char **buffer = new char *[numStrings];
-        int retval = netcdfGetVar(
+        int status = netcdfGetVar(
             netcdfID,
             groupName,
             varName,
@@ -353,7 +359,7 @@ namespace Obs2Ioda {
             numStrings,
             (char **) buffer
         );
-        free(buffer);
-        return retval;
+        delete[] buffer;
+        return status;
     }
 }

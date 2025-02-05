@@ -1,30 +1,25 @@
 #include "netcdf_dimension.h"
-#include "netcdf_utils.h"
 #include "netcdf_file.h"
 #include "netcdf_error.h"
 
-namespace Obs2Ioda
-{
+namespace Obs2Ioda {
     int netcdfAddDim(
-        int netcdfID,
-        const char* groupName,
-        const char* dimName,
-        int len
-    )
-    {
-        try
-        {
-            std::lock_guard lock(sharedMutex);
-            auto file = FileMap::getInstance().getFile(netcdfID);
-            auto group = getRootGroup(netcdfID, groupName);
-            auto dim = group->addDim(
-                dimName,
-                len
-            );
+        const int netcdfID,
+        const char *groupName,
+        const char *dimName,
+        const int len
+    ) {
+        try {
+            const auto file = FileMap::getInstance().getFile(netcdfID);
+            const auto group = !groupName
+                                   ? file
+                                   : std::make_shared<
+                                       netCDF::NcGroup>(
+                                       file->getGroup(
+                                           groupName));
+            auto dim = group->addDim(dimName, len);
             return 0;
-        }
-        catch (netCDF::exceptions::NcException& e)
-        {
+        } catch (netCDF::exceptions::NcException &e) {
             return netcdfErrorMessage(
                 e,
                 __LINE__,
