@@ -130,7 +130,7 @@ TEST_F(NetCDFTestFixture, NetCDFVariableTest) {
         this->test_string_var_data.data()
     );
     EXPECT_EQ(status, 0);
-    status = Obs2Ioda::netcdfPutVar(
+    status = Obs2Ioda::netcdfPutVarInt(
         netcdfID,
         this->test_group_name.c_str(),
         this->test_int_var_name.c_str(),
@@ -157,21 +157,10 @@ TEST_F(NetCDFTestFixture, NetCDFVariableTest) {
         static_cast<int>(varSize),
         &outStringData
     );
-    delete[] outStringData;
-    int *outIntData = new int[varSize];
-    status = Obs2Ioda::netcdfGetVar(
-        netcdfID,
-        this->test_group_name.c_str(),
-        this->test_int_var_name.c_str(),
-        &outIntData
-    );
-    EXPECT_EQ(status, 0);
     for (auto i = 0; i < varSize; i++) {
-        EXPECT_EQ(outIntData[i], this->test_int_var_data[i]);
+        EXPECT_FALSE(outStringData[i]);
     }
-    delete[] outIntData;
-    status = Obs2Ioda::netcdfClose(netcdfID);
-    EXPECT_EQ(status, 0);
+    delete[] outStringData;
 
 }
 

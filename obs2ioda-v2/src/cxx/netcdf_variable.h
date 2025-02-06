@@ -3,26 +3,6 @@
 #include <netcdf>
 
 namespace Obs2Ioda {
-/**
-* @brief Writes data to a variable in a NetCDF file.
-*
-* @tparam T The data type of the variable.
-* @param netcdfID The identifier of the NetCDF file where the data will be written.
-* @param groupName The name of the group containing the variable. If nullptr, the variable is assumed to be in the root group.
-* @param varName The name of the variable to which data will be written.
-* @param data A pointer to the data to be written to the variable.
-* @return int A status code indicating the outcome of the operation:
-*         - 0: Success.
-*         - Non-zero: Failure, with an error message logged.
-*/
-    template<typename T>
-    int netcdfPutVar(
-        int netcdfID,
-        const char *groupName,
-        const char *varName,
-        const T *data
-    );
-
  /**
  * @brief Sets the fill mode and fill value for a variable in a NetCDF file.
  *
@@ -38,14 +18,6 @@ namespace Obs2Ioda {
  *         - 0: Success.
  *         - Non-zero: Failure, with an error message logged.
  */
-    template<typename T>
-    int netcdfSetFill(
-        int netcdfID,
-        const char *groupName,
-        const char *varName,
-        int fillMode,
-        T fillValue
-    );
 
 /**
 * @brief Reads data from a variable in a NetCDF file.
@@ -59,13 +31,6 @@ namespace Obs2Ioda {
 *         - 0: Success.
 *         - Non-zero: Failure, with an error message logged.
 */
-    template<typename T>
-    int netcdfGetVar(
-        int netcdfID,
-        const char *groupName,
-        const char *varName,
-        T **data
-    );
 
     extern "C" {
 /**
@@ -91,6 +56,18 @@ namespace Obs2Ioda {
         const char **dimNames
     );
 
+/**
+* @brief Writes data to a variable in a NetCDF file.
+*
+* @tparam T The data type of the variable.
+* @param netcdfID The identifier of the NetCDF file where the data will be written.
+* @param groupName The name of the group containing the variable. If nullptr, the variable is assumed to be in the root group.
+* @param varName The name of the variable to which data will be written.
+* @param data A pointer to the data to be written to the variable.
+* @return int A status code indicating the outcome of the operation:
+*         - 0: Success.
+*         - Non-zero: Failure, with an error message logged.
+*/
     int netcdfPutVarInt(
         int netcdfID,
         const char *groupName,
@@ -119,6 +96,21 @@ namespace Obs2Ioda {
         const char **data
     );
 
+ /**
+ * @brief Sets the fill mode and fill value for a variable in a NetCDF file.
+ *
+ * @tparam T The data type of the fill value.
+ * @param netcdfID The identifier of the NetCDF file containing the variable.
+ * @param groupName The name of the group containing the variable. If nullptr, the variable is assumed to be in the root group.
+ * @param varName The name of the variable for which the fill mode is set.
+ * @param fillMode The fill mode to be applied:
+ *         - 0: Disable fill mode (use uninitialized values).
+ *         - 1: Enable fill mode (use the specified fill value).
+ * @param fillValue The fill value to be applied when fill mode is enabled. Must match the data type of the variable.
+ * @return int A status code indicating the outcome of the operation:
+ *         - 0: Success.
+ *         - Non-zero: Failure, with an error message logged.
+ */
     int netcdfSetFillInt(
         int netcdfID,
         const char *groupName,

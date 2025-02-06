@@ -374,6 +374,7 @@ namespace Obs2Ioda {
     ) {
         for (auto i = 0; i < numStrings; i++) {
             delete (*data)[i];
+            (*data)[i] = NULL;
         }
     }
 }
