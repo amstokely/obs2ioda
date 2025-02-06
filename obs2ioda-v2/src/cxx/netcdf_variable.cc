@@ -3,77 +3,6 @@
 #include "netcdf_error.h"
 
 namespace Obs2Ioda {
-    template int netcdfGetVar<int>(
-        int,
-        const char *,
-        const char *,
-        int **
-    );
-
-    template int netcdfGetVar<long long>(
-        int,
-        const char *,
-        const char *,
-        long long **
-    );
-
-    template int netcdfGetVar<float>(
-        int,
-        const char *,
-        const char *,
-        float **
-    );
-
-    template int netcdfSetFill<int>(
-        int,
-        const char *,
-        const char *,
-        int,
-        int);
-
-    template int netcdfSetFill<float>(
-        int,
-        const char *,
-        const char *,
-        int,
-        float);
-
-    template int netcdfSetFill<long long>(
-        int,
-        const char *,
-        const char *,
-        int,
-        long long);
-
-    template int netcdfSetFill<const char *>(
-        int,
-        const char *,
-        const char *,
-        int,
-        const char *
-    );
-
-    template int netcdfSetFill<const char>(
-        int,
-        const char *,
-        const char *,
-        int,
-        char);
-
-    template int netcdfPutVar<int>(
-        int,
-        const char *,
-        const char *,
-        const int *
-    );
-
-    template int netcdfPutVar<float>(
-        int,
-        const char *,
-        const char *,
-        const float *
-    );
-
     int netcdfAddVar(
         int netcdfID,
         const char *groupName,
@@ -193,40 +122,6 @@ namespace Obs2Ioda {
         );
     }
 
-
-    template<typename T>
-    int netcdfGetVar(
-        int netcdfID,
-        const char *groupName,
-        const char *varName,
-        T **data
-    ) {
-        try {
-            auto file = FileMap::getInstance().getFile(netcdfID);
-            const auto group = !groupName
-                                   ? file
-                                   : std::make_shared<
-                                       netCDF::NcGroup>(
-                                       file->getGroup(
-                                           groupName));
-            auto var = group->getVar(varName);
-            const std::vector<size_t> start = {0};
-            const std::vector<size_t> count = {var.getDim(0).getSize()};
-            var.getVar(
-                start,
-                count,
-                *data
-            );
-            return 0;
-        } catch (netCDF::exceptions::NcException &e) {
-            return netcdfErrorMessage(
-                e,
-                __LINE__,
-                __FILE__
-            );
-        }
-    }
-
     template<typename T>
     int netcdfSetFill(
         int netcdfID,
@@ -323,12 +218,13 @@ namespace Obs2Ioda {
         );
     }
 
-    int netcdfGetVarString1D(
+    int netcdfGetVarSize(
         int netcdfID,
         const char *groupName,
         const char *varName,
-        char ***data
+        int *varSize
     ) {
+        try {
             auto file = FileMap::getInstance().getFile(netcdfID);
             const auto group = !groupName
                                    ? file
@@ -336,30 +232,148 @@ namespace Obs2Ioda {
                                        netCDF::NcGroup>(
                                        file->getGroup(
                                            groupName));
-        auto dims = file->getVar(varName).getDims();
-        auto var = file->getVar(varName);
+            auto var = group->getVar(varName);
+            *varSize = static_cast<int>(var.getDim(0).getSize());
+            return 0;
+        } catch (netCDF::exceptions::NcException &e) {
+            return netcdfErrorMessage(
+                e,
+                __LINE__,
+                __FILE__
+            );
+        }
+    }
+
+    template<typename T>
+    int netcdfGetVar(
+        int netcdfID,
+        const char *groupName,
+        const char *varName,
+        T **data
+    ) {
+        try {
+            auto file = FileMap::getInstance().getFile(netcdfID);
+            const auto group = !groupName
+                                   ? file
+                                   : std::make_shared<
+                                       netCDF::NcGroup>(
+                                       file->getGroup(
+                                           groupName));
+            auto var = group->getVar(varName);
+            const std::vector<size_t> start = {0};
+            const std::vector<size_t> count = {var.getDim(0).getSize()};
+            var.getVar(
+                start,
+                count,
+                *data
+            );
+            return 0;
+        } catch (netCDF::exceptions::NcException &e) {
+            return netcdfErrorMessage(
+                e,
+                __LINE__,
+                __FILE__
+            );
+        }
+    }
+
+    int netcdfGetVarInt(
+        int netcdfID,
+        const char *groupName,
+        const char *varName,
+        int *data
+    ) {
+        return netcdfGetVar(
+            netcdfID,
+            groupName,
+            varName,
+            &data
+        );
+    }
+
+    int netcdfGetVarInt64(
+        int netcdfID,
+        const char *groupName,
+        const char *varName,
+        long long *data
+    ) {
+        return netcdfGetVar(
+            netcdfID,
+            groupName,
+            varName,
+            &data
+        );
+    }
+
+    int netcdfGetVarReal(
+        int netcdfID,
+        const char *groupName,
+        const char *varName,
+        float *data
+    ) {
+        return netcdfGetVar(
+            netcdfID,
+            groupName,
+            varName,
+            &data
+        );
+    }
+
+    int netcdfGetVarString(
+        int netcdfID,
+        const char *groupName,
+        const char *varName,
+        char ***data
+    ) {
+        auto file = FileMap::getInstance().getFile(netcdfID);
+        const auto group = !groupName
+                               ? file
+                               : std::make_shared<
+                                   netCDF::NcGroup>(
+                                   file->getGroup(
+                                       groupName));
+        auto var = group->getVar(varName);
+        auto dims = var.getDims();
         size_t numStrings = dims[0].getSize();
         char **buffer = new char *[numStrings];
-        int status = netcdfGetVar(
+        int retval = netcdfGetVar(
             netcdfID,
             groupName,
             varName,
             &buffer
         );
+        size_t longestStringLength {};
+        for (auto i = 0; i < numStrings; i++) {
+            longestStringLength = std::max(
+                longestStringLength,
+                strlen(buffer[i])
+            );
+        }
+        for (auto i = 0; i < numStrings; i++) {
+            (*data)[i] = new char[longestStringLength + 1];
+        }
         for (auto i = 0; i < numStrings; i++) {
             std::string tmpStr = buffer[i];
-            std::copy(
-                tmpStr.begin(),
-                tmpStr.end(),
-                (*data)[i]
+            std::ranges::copy(tmpStr
+                              ,
+                              (*data)[i]
             );
             (*data)[i][tmpStr.size()] = '\0';
         }
         var.freeString(
             numStrings,
-            (char **) buffer
+            buffer
         );
         delete[] buffer;
-        return status;
+        return retval;
+    }
+
+    void netcdfFreeString(
+        int numStrings,
+        char ***data
+    ) {
+        for (auto i = 0; i < numStrings; i++) {
+            delete (*data)[i];
+        }
     }
 }

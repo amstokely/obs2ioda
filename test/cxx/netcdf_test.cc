@@ -2,7 +2,9 @@
 #include "netcdf_file.h"
 #include <gtest/gtest.h>
 #include <filesystem>
-#include <thread>
+#include <netcdf_dimension.h>
+#include <netcdf_group.h>
+#include <netcdf_variable.h>
 
 /**
  * @brief Test case for creating, managing, and closing NetCDF files using Obs2Ioda functionality.
@@ -68,7 +70,8 @@ TEST_F(NetCDFTestFixture, NetCDFCreateReplaceModeTest) {
         netCDF::exceptions::NcCantCreate
     );
     // Test that NcBadId exception is thrown when retrieving a file from FileMap with a non-existent ID
-    EXPECT_THROW(Obs2Ioda::FileMap::getInstance().getFile(1), netCDF::exceptions::NcBadId);
+    EXPECT_THROW(Obs2Ioda::FileMap::getInstance().getFile(1),
+                 netCDF::exceptions::NcBadId);
     // Test that netcdfClose successfully closes a NetCDF file
     status = Obs2Ioda::netcdfClose(netcdfID);
     EXPECT_EQ(status, 0);
@@ -76,10 +79,104 @@ TEST_F(NetCDFTestFixture, NetCDFCreateReplaceModeTest) {
     status = Obs2Ioda::netcdfClose(netcdfID);
     EXPECT_EQ(status, -33);
     // Test that the NcBadId exception is thrown when removing a file from FileMap with a non-existent ID
-    EXPECT_THROW(Obs2Ioda::FileMap::getInstance().removeFile(1), netCDF::exceptions::NcBadId);
+    EXPECT_THROW(Obs2Ioda::FileMap::getInstance().removeFile(1),
+                 netCDF::exceptions::NcBadId);
 }
 
-int main(int argc, char **argv) {
+TEST_F(NetCDFTestFixture, NetCDFVariableTest) {
+    int netcdfID{};
+    int status = Obs2Ioda::netcdfCreate(
+        this->test_var_path.c_str(),
+        &netcdfID,
+        static_cast<netCDF::NcFile::FileMode>(netCDF::NcFile::replace)
+    );
+    EXPECT_EQ(status, 0);
+    status = Obs2Ioda::netcdfAddGroup(
+        netcdfID,
+        nullptr,
+        this->test_group_name.c_str()
+    );
+    EXPECT_EQ(status, 0);
+    status = Obs2Ioda::netcdfAddDim(
+        netcdfID,
+        nullptr,
+        this->test_dim_name.c_str(),
+        this->test_dim_len
+    );
+    EXPECT_EQ(status, 0);
+    std::vector<const char *> dimNames = {this->test_dim_name.c_str()};
+    status = Obs2Ioda::netcdfAddVar(
+        netcdfID,
+        this->test_group_name.c_str(),
+        this->test_string_var_name.c_str(),
+        NC_STRING,
+        1,
+        dimNames.data()
+    );
+    EXPECT_EQ(status, 0);
+    status = Obs2Ioda::netcdfAddVar(
+        netcdfID,
+        this->test_group_name.c_str(),
+        this->test_int_var_name.c_str(),
+        NC_INT,
+        1,
+        dimNames.data()
+    );
+    EXPECT_EQ(status, 0);
+    status = Obs2Ioda::netcdfPutVarString(
+        netcdfID,
+        this->test_group_name.c_str(),
+        this->test_string_var_name.c_str(),
+        this->test_string_var_data.data()
+    );
+    EXPECT_EQ(status, 0);
+    status = Obs2Ioda::netcdfPutVar(
+        netcdfID,
+        this->test_group_name.c_str(),
+        this->test_int_var_name.c_str(),
+        this->test_int_var_data.data()
+    );
+    int varSize{};
+    status = Obs2Ioda::netcdfGetVarSize(
+        netcdfID,
+        this->test_group_name.c_str(),
+        this->test_string_var_name.c_str(),
+        &varSize
+    );
+    EXPECT_EQ(status, 0);
+    EXPECT_EQ(varSize, this->test_dim_len);
+    char **outStringData = new char *[varSize];
+    status = Obs2Ioda::netcdfGetVarString(
+        netcdfID,
+        this->test_group_name.c_str(),
+        this->test_string_var_name.c_str(),
+        &outStringData
+    );
+    EXPECT_EQ(status, 0);
+    Obs2Ioda::netcdfFreeString(
+        static_cast<int>(varSize),
+        &outStringData
+    );
+    delete[] outStringData;
+    int *outIntData = new int[varSize];
+    status = Obs2Ioda::netcdfGetVar(
+        netcdfID,
+        this->test_group_name.c_str(),
+        this->test_int_var_name.c_str(),
+        &outIntData
+    );
+    EXPECT_EQ(status, 0);
+    for (auto i = 0; i < varSize; i++) {
+        EXPECT_EQ(outIntData[i], this->test_int_var_data[i]);
+    }
+    delete[] outIntData;
+    status = Obs2Ioda::netcdfClose(netcdfID);
+    EXPECT_EQ(status, 0);
+
+}
+
+int main(int argc,
+         char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }
