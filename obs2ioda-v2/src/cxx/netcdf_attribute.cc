@@ -25,11 +25,8 @@ namespace Obs2Ioda {
                                            groupName
                                        )
                                    );
-            auto var = group->getVar(
-                varName
-            );
-            if (varName != nullptr) {
-                var = group->getVar(
+            if (varName) {
+                auto var = group->getVar(
                     varName
                 );
                 var.putAtt(
