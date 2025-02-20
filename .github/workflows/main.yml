@@ -1,0 +1,32 @@
+name: Format Fortran Code with fprettify
+
+on: [push, pull_request]
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install fprettify
+        run: pip install fprettify
+
+      - name: Run fprettify on all Fortran files
+        run: |
+          fprettify -r -l 250 ./obs2ioda-v2/src 
+
+      - name: Commit and Push if Changes Exist
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add .
+          if git diff --cached --quiet; then
+            echo "No formatting changes needed."
+          else
+            git commit -m "Auto-format Fortran files using fprettify"
+            git push
+          fi
