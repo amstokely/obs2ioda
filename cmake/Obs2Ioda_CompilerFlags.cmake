@@ -7,7 +7,7 @@ set(FORTRAN_COMPILER_GNU_FLAGS
 # Set Fortran compiler flags specific to the GNU Compiler and Linux OS.
 # -mcmodel=medium: Allow for larger datasets in memory
 set(FORTRAN_COMPILER_GNU_LINUX_FLAGS
-        $<$<COMPILE_LANGUAGE:Fortran>:-mcmodel=medium -Wno-line-truncation>
+        $<$<COMPILE_LANGUAGE:Fortran>:-Wno-line-truncation>
 )
 
 # Set Debugging Fortran compiler flags specific to the GNU Compiler

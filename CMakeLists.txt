@@ -16,6 +16,10 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(OBS2IODA_MODULE_DIR ${PROJECT_NAME}/module/${CMAKE_Fortran_COMPILER_ID}/${CMAKE_Fortran_COMPILER_VERSION})
 # Install Fortran module directory
 install(DIRECTORY ${CMAKE_BINARY_DIR}/${OBS2IODA_MODULE_DIR}/ DESTINATION ${CMAKE_INSTALL_LIBDIR}/${OBS2IODA_MODULE_DIR}/)
+# In your top-level CMakeLists.txt
+set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -mcmodel=large -fPIC")
+set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -mcmodel=large -fPIC")
+
 
 
 # Set the Fortran compiler and flags
