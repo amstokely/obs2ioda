@@ -25,6 +25,7 @@ set(obs2ioda_cxx_LIBRARIES
     NetCDF::NetCDF_CXX
     NetCDF::NetCDF_C
     yaml-cpp::yaml-cpp
+    eckit
 )
 set(obs2ioda_cxx_INCLUDE_DIRS
     ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_BINARY_DIR}/generated

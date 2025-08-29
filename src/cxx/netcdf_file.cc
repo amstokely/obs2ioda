@@ -6,7 +6,7 @@
 namespace Obs2Ioda {
     auto iodaSchemaYamlRoot = std::make_shared<YamlCppNode>(
             YAML::LoadFile(IODA_SCHEMA_YAML));
-    IodaObsSchema iodaSchema(iodaSchemaYamlRoot);
+    IodaObsSchema<YamlCppNode> iodaSchema(*iodaSchemaYamlRoot);
 
     FileMap &FileMap::getInstance() {
         static FileMap instance;

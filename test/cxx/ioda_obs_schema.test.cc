@@ -7,11 +7,11 @@ class IodaObsSchemaFixture : public ::testing::Test {
 protected:
     void SetUp() override {
         this->schema = YAML::LoadFile(Obs2Ioda::IODA_SCHEMA_YAML);
-        auto yamlNode = std::make_shared<YamlCppNode>(this->schema);
-        this->iodaSchema = std::make_shared<IodaObsSchema>(yamlNode);
+        auto yamlNode = YamlCppNode(this->schema);
+        this->iodaSchema = std::make_shared<IodaObsSchema<YamlCppNode>>(yamlNode);
     }
     YAML::Node schema;
-    std::shared_ptr<IodaObsSchema> iodaSchema;
+    std::shared_ptr<IodaObsSchema<YamlCppNode>> iodaSchema;
 };
 
 /**
