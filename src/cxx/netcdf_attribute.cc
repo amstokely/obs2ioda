@@ -19,7 +19,7 @@ namespace Obs2Ioda {
                 );
             }
             if (!std::string(varName).empty()) {
-                auto iodaVarName = iodaSchema.getVariable(varName)->getValidName();
+                auto iodaVarName = iodaSchema.getVariable(varName).getValidName();
                 auto var = group->getVar(iodaVarName);
                 if constexpr(std::is_same_v<const char *, T> && netcdfString) {
                     var.putAtt(

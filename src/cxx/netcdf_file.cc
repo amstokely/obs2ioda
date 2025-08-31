@@ -1,12 +1,14 @@
 #include "netcdf_file.h"
 #include "netcdf_error.h"
 #include <memory>
+#include "FilePathConfig.h"
 
 
 namespace Obs2Ioda {
-    auto iodaSchemaYamlRoot = std::make_shared<YamlCppNode>(
-            YAML::LoadFile(IODA_SCHEMA_YAML));
-    IodaObsSchema<YamlCppNode> iodaSchema(*iodaSchemaYamlRoot);
+    std::string yamlPath = IODA_SCHEMA_YAML;
+    auto iodaSchemaYamlRoot = std::make_unique<YamlEckitNode>(
+            yamlPath);
+    IodaObsSchema<EckitPolicy> iodaSchema(iodaSchemaYamlRoot);
 
     FileMap &FileMap::getInstance() {
         static FileMap instance;

@@ -14,7 +14,7 @@ namespace Obs2Ioda {
         try {
             const auto file = FileMap::getInstance().getFile(netcdfID);
             const auto group = setNetcdfGroup(file, groupName);
-            auto iodaDimName = iodaSchema.getDimension(dimName)->getValidName();
+            auto iodaDimName = iodaSchema.getDimension(dimName).getValidName();
             auto dim = group->addDim(iodaDimName, len);
             *dimID = dim.getId();
             return 0;

@@ -12,7 +12,7 @@ namespace Obs2Ioda {
         try {
             auto file = FileMap::getInstance().getFile(netcdfID);
             const auto parentGroup = setNetcdfGroup(file, parentGroupName);
-            auto iodaGroupName = iodaSchema.getGroup(groupName)->getValidName();
+            auto iodaGroupName = iodaSchema.getGroup(groupName).getValidName();
             const auto group = parentGroup->addGroup(iodaGroupName);
             return 0;
         } catch (netCDF::exceptions::NcException &e) {

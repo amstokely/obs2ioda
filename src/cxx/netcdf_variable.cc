@@ -41,10 +41,10 @@ namespace Obs2Ioda {
             dims.reserve(numDims);
             for (int i = 0; i < numDims; i++) {
                 dims.push_back(file->getDim(iodaSchema.getDimension(
-                        dimNames[i])->getValidName()));;
+                        dimNames[i]).getValidName()));;
             }
             auto iodaVarName = iodaSchema.getVariable(
-                    varName)->getValidName();
+                    varName).getValidName();
             auto var = group->addVar(
                     iodaVarName,
                     netCDF::NcType(netcdfDataType),
@@ -74,7 +74,7 @@ namespace Obs2Ioda {
                     groupName
             );
             auto iodaVarName = iodaSchema.getVariable(
-                    varName)->getValidName();
+                    varName).getValidName();
             const auto var = group->getVar(iodaVarName);
             // Validate the data type of the variable
             validateNetcdfDataType<T>(
@@ -213,7 +213,7 @@ namespace Obs2Ioda {
                     groupName
             );
             auto iodaVarName = iodaSchema.getVariable(
-                    varName)->getValidName();
+                    varName).getValidName();
             auto var = group->getVar(iodaVarName);
             // Validate the data type of the variable
             validateNetcdfDataType<T>(

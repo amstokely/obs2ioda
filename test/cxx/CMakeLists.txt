@@ -1,46 +1,81 @@
-
-FETCHCONTENT_DECLARE(
-        googletest
-        URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
+set(eckit_test_ioda_obs_schema_SOURCES ioda_obs_schema.eckit.test.cc)
+set(eckit_test_ioda_obs_schema_LIBRARIES eckit obs2ioda_cxx)
+set(eckit_test_ioda_obs_schema_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/src/cxx)
+add_executable(eckit_test_ioda_obs_schema "${eckit_test_ioda_obs_schema_SOURCES}")
+target_link_libraries(eckit_test_ioda_obs_schema PRIVATE "${eckit_test_ioda_obs_schema_LIBRARIES}")
+add_test(
+        NAME eckit_test_ioda_obs_schema
+        COMMAND eckit_test_ioda_obs_schema
 )
-FETCHCONTENT_MAKEAVAILABLE(googletest)
 
-set(test_ioda_obs_schema_SOURCES ioda_obs_schema.test.cc)
-set(test_ioda_obs_schema_LIBRARIES eckit yaml-cpp::yaml-cpp GTest::gtest_main obs2ioda_cxx)
-set(test_ioda_obs_schema_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/src/cxx)
-add_cxx_ctest(test_ioda_obs_schema "${test_ioda_obs_schema_SOURCES}" "${test_ioda_obs_schema_INCLUDE_DIRS}" "${test_ioda_obs_schema_LIBRARIES}")
+set(eckit_test_netcdf_file_SOURCES netcdf_file.eckit.test.cc)
+set(eckit_test_netcdf_file_LIBRARIES eckit obs2ioda_cxx)
+set(eckit_test_netcdf_file_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/src/cxx)
+add_executable(eckit_test_netcdf_file "${eckit_test_netcdf_file_SOURCES}")
+target_link_libraries(eckit_test_netcdf_file PRIVATE "${eckit_test_netcdf_file_LIBRARIES}")
+add_test(
+        NAME eckit_test_netcdf_file
+        COMMAND eckit_test_netcdf_file
+)
 
-set(test_netcdf_file_SOURCES netcdf_file.test.cc)
-set(test_netcdf_file_LIBRARIES GTest::gtest_main obs2ioda_cxx)
-set(test_netcdf_file_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/src/cxx)
-add_cxx_ctest(test_netcdf_file "${test_netcdf_file_SOURCES}" "${test_netcdf_file_INCLUDE_DIRS}" "${test_netcdf_file_LIBRARIES}")
+set(eckit_test_netcdf_group_SOURCES netcdf_group.eckit.test.cc)
+set(eckit_test_netcdf_group_LIBRARIES eckit obs2ioda_cxx)
+set(eckit_test_netcdf_group_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/src/cxx)
+add_executable(eckit_test_netcdf_group "${eckit_test_netcdf_group_SOURCES}")
+target_link_libraries(eckit_test_netcdf_group PRIVATE "${eckit_test_netcdf_group_LIBRARIES}")
+add_test(
+        NAME eckit_test_netcdf_group
+        COMMAND eckit_test_netcdf_group
+)
 
-set(test_netcdf_error_SOURCES netcdf_error.test.cc)
-set(test_netcdf_error_LIBRARIES GTest::gtest_main obs2ioda_cxx)
-set(test_netcdf_error_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/src/cxx)
-add_cxx_ctest(test_netcdf_error "${test_netcdf_error_SOURCES}" "${test_netcdf_error_INCLUDE_DIRS}" "${test_netcdf_error_LIBRARIES}")
+set(eckit_test_netcdf_variable_SOURCES netcdf_variable.eckit.test.cc)
+set(eckit_test_netcdf_variable_LIBRARIES eckit obs2ioda_cxx)
+set(eckit_test_netcdf_variable_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/src/cxx)
+add_executable(eckit_test_netcdf_variable "${eckit_test_netcdf_variable_SOURCES}")
+target_link_libraries(eckit_test_netcdf_variable PRIVATE "${eckit_test_netcdf_variable_LIBRARIES}")
+add_test(
+        NAME eckit_test_netcdf_variable
+        COMMAND eckit_test_netcdf_variable
+)
 
-set(test_netcdf_group_SOURCES netcdf_group.test.cc)
-set(test_netcdf_group_LIBRARIES GTest::gtest_main obs2ioda_cxx)
-set(test_netcdf_group_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/src/cxx)
-add_cxx_ctest(test_netcdf_group "${test_netcdf_group_SOURCES}" "${test_netcdf_group_INCLUDE_DIRS}" "${test_netcdf_group_LIBRARIES}")
+set(eckit_test_netcdf_error_SOURCES netcdf_error.eckit.test.cc)
+set(eckit_test_netcdf_error_LIBRARIES eckit obs2ioda_cxx)
+set(eckit_test_netcdf_error_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/src/cxx)
+add_executable(eckit_test_netcdf_error "${eckit_test_netcdf_error_SOURCES}")
+target_link_libraries(eckit_test_netcdf_error PRIVATE "${eckit_test_netcdf_error_LIBRARIES}")
+add_test(
+        NAME eckit_test_netcdf_error
+        COMMAND eckit_test_netcdf_error
+)
 
-set(test_netcdf_dimension_SOURCES netcdf_dimension.test.cc)
-set(test_netcdf_dimension_LIBRARIES GTest::gtest_main obs2ioda_cxx)
-set(test_netcdf_dimension_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/src/cxx)
-add_cxx_ctest(test_netcdf_dimension "${test_netcdf_dimension_SOURCES}" "${test_netcdf_dimension_INCLUDE_DIRS}" "${test_netcdf_dimension_LIBRARIES}")
+set(eckit_test_netcdf_dimension_SOURCES netcdf_dimension.eckit.test.cc)
+set(eckit_test_netcdf_dimension_LIBRARIES eckit obs2ioda_cxx)
+set(eckit_test_netcdf_dimension_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/src/cxx)
+add_executable(eckit_test_netcdf_dimension "${eckit_test_netcdf_dimension_SOURCES}")
+target_link_libraries(eckit_test_netcdf_dimension PRIVATE "${eckit_test_netcdf_dimension_LIBRARIES}")
+add_test(
+        NAME eckit_test_netcdf_dimension
+        COMMAND eckit_test_netcdf_dimension
+)
 
-set(test_netcdf_attribute_SOURCES netcdf_attribute.test.cc)
-set(test_netcdf_attribute_LIBRARIES GTest::gtest_main obs2ioda_cxx)
-set(test_netcdf_attribute_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/src/cxx)
-add_cxx_ctest(test_netcdf_attribute "${test_netcdf_attribute_SOURCES}" "${test_netcdf_attribute_INCLUDE_DIRS}" "${test_netcdf_attribute_LIBRARIES}")
+set(eckit_test_netcdf_attribute_SOURCES netcdf_attribute.eckit.test.cc)
+set(eckit_test_netcdf_attribute_LIBRARIES eckit obs2ioda_cxx)
+set(eckit_test_netcdf_attribute_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/src/cxx)
+add_executable(eckit_test_netcdf_attribute "${eckit_test_netcdf_attribute_SOURCES}")
+target_link_libraries(eckit_test_netcdf_attribute PRIVATE "${eckit_test_netcdf_attribute_LIBRARIES}")
+add_test(
+        NAME eckit_test_netcdf_attribute
+        COMMAND eckit_test_netcdf_attribute
+)
 
-set(test_netcdf_variable_SOURCES netcdf_variable.test.cc)
-set(test_netcdf_variable_LIBRARIES GTest::gtest_main obs2ioda_cxx)
-set(test_netcdf_variable_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/src/cxx)
-add_cxx_ctest(test_netcdf_variable "${test_netcdf_variable_SOURCES}" "${test_netcdf_variable_INCLUDE_DIRS}" "${test_netcdf_variable_LIBRARIES}")
+set(eckit_test_set_netcdf_group_SOURCES set_netcdf_group.eckit.test.cc)
+set(eckit_test_set_netcdf_group_LIBRARIES eckit obs2ioda_cxx)
+set(eckit_test_set_netcdf_group_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/src/cxx)
+add_executable(eckit_test_set_netcdf_group "${eckit_test_set_netcdf_group_SOURCES}")
+target_link_libraries(eckit_test_set_netcdf_group PRIVATE "${eckit_test_set_netcdf_group_LIBRARIES}")
+add_test(
+        NAME eckit_test_set_netcdf_group
+        COMMAND eckit_test_set_netcdf_group
+)
 
-set(test_set_netcdf_group_SOURCES set_netcdf_group.test.cc)
-set(test_set_netcdf_group_LIBRARIES GTest::gtest_main obs2ioda_cxx)
-set(test_set_netcdf_group_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/src/cxx)
-add_cxx_ctest(test_set_netcdf_group "${test_set_netcdf_group_SOURCES}" "${test_set_netcdf_group_INCLUDE_DIRS}" "${test_set_netcdf_group_LIBRARIES}")
+
