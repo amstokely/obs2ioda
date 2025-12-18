@@ -1046,7 +1046,7 @@ Variables:
     Dimensions: [ [ "Location" ] ]
     MetaData: true
     Force Units: false
-  - Variable: [ "spatialQuality", ]
+  - Variable: [ "spatialQuality" ]
     Dimensions: [ [ "Location" ] ]
     MetaData: true
     Force Units: false
