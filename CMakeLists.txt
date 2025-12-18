@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 3.10)
 
 include("${CMAKE_SOURCE_DIR}/cmake/Obs2Ioda_Functions.cmake")
 include(FetchContent)
-include("${CMAKE_SOURCE_DIR}/cmake/add_pfunit.cmake")
 # Define the project
 project(obs2ioda LANGUAGES Fortran CXX)
 enable_testing()
@@ -28,9 +27,14 @@ set(BUILD_GOES_ABI_CONVERTER OFF CACHE BOOL "Build the GOES ABI converter")
 
 set(eckit_DIR CACHE STRING "")
 
+if(APPLE)
+    string(REPLACE "-mcmodel=large" "" CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS}")
+endif()
+
 # Find required packages
 find_package(NetCDF REQUIRED COMPONENTS Fortran C CXX)
 find_package(eckit REQUIRED)
+find_package(PFUNIT REQUIRED)
 
 add_subdirectory("${CMAKE_SOURCE_DIR}/config")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src")

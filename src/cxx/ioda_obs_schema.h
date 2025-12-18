@@ -12,6 +12,7 @@
 
 template<SchemaPolicyLike Policy>
 class IodaObsSchema {
+public:
     using YamlNode = typename Policy::YamlNode;
     using Backend  = typename Policy::Backend;
     std::unordered_map<std::string, std::shared_ptr<const IodaObsVariable> >
@@ -44,7 +45,6 @@ class IodaObsSchema {
         return *(it->second);
     }
 
-public:
     /**
      * @brief Construct schema by loading components from a YAML node.
      *

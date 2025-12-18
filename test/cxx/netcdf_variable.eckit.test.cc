@@ -16,11 +16,11 @@ namespace {
 struct NetcdfVariableFixture {
     std::string filePath;
     int netcdfID;
-    std::shared_ptr<netCDF::NcFile> file;
+    std::shared_ptr<NetcdfFile> file;
 
     NetcdfVariableFixture() : filePath("test_variable.nc"), netcdfID(-1) {
         std::remove(filePath.c_str());
-        file = std::make_shared<netCDF::NcFile>(filePath, netCDF::NcFile::replace);
+        file = std::make_shared<NetcdfFile>(filePath, netCDF::NcFile::replace);
         netcdfID = file->getId();
         FileMap::getInstance().addFile(netcdfID, file);
     }

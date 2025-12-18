@@ -4,6 +4,7 @@
 #include "netcdf_utils.h"
 
 namespace Obs2Ioda {
+
     int netcdfAddGroup(
         int netcdfID,
         const char *parentGroupName,

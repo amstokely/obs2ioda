@@ -17,14 +17,14 @@ struct SetNetcdfGroupFixture {
     std::string filePath;
     std::string groupName;
     int netcdfID;
-    std::shared_ptr<netCDF::NcFile> file;
+    std::shared_ptr<NetcdfFile> file;
     std::shared_ptr<netCDF::NcGroup> refGroup;
 
     SetNetcdfGroupFixture() : filePath("test_set_netcdf_group.nc"), groupName("group"), netcdfID(-1) {
         std::remove(filePath.c_str());
 
         // Create NetCDF file
-        file = std::make_shared<netCDF::NcFile>(filePath, netCDF::NcFile::replace);
+        file = std::make_shared<NetcdfFile>(filePath, netCDF::NcFile::replace);
         netcdfID = file->getId();
 
         FileMap::getInstance().addFile(netcdfID, file);

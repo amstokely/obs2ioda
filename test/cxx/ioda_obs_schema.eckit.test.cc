@@ -33,6 +33,7 @@ CASE("IodaObsSchema - Variable aliases and canonical names") {
             getVariable("sensorCentralFrequency");
     const auto nlocs_Variable = iodaSchema->getVariable("nlocs");
     const auto Location_Variable = iodaSchema->getVariable("Location");
+    const auto empty_Variable = iodaSchema->getVariable("");
 
     EXPECT(
         stationIdentification_Variable.getValidName() ==
@@ -48,6 +49,9 @@ CASE("IodaObsSchema - Variable aliases and canonical names") {
     // Global dimension-as-variable logic
     EXPECT(Location_Variable.getValidName() == "Location");
     EXPECT(Location_Variable.getNames().size() == 2);
+
+    // Empty name returns empty variable
+    EXPECT(empty_Variable.getValidName().empty());
 }
 
 //--------------------------------------------------------------------
@@ -96,8 +100,13 @@ CASE("IodaObsSchema - Group resolution and canonical names") {
     auto iodaSchema = makeSchema();
 
     const auto MetaData_Group = iodaSchema->getGroup("MetaData");
+    const auto empty_Group = iodaSchema->getGroup("");
     EXPECT(MetaData_Group.getValidName() == "MetaData");
     EXPECT(MetaData_Group.getNames().size() == 1);
+
+    // Empty name returns empty group
+    EXPECT(empty_Group.getValidName().empty());
+    EXPECT(empty_Group.getNames().size() == 1);
 }
 
 //--------------------------------------------------------------------

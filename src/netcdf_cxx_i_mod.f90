@@ -105,7 +105,7 @@ module netcdf_cxx_i_mod
         !   ```
         function c_netcdfAddDim(&
                 netcdfID, groupName, dimName, len, dimID) &
-                bind(C, name = "netcdfAddDim")
+                bind(C, name = "c_netcdfAddDim")
             import :: c_int
             import :: c_ptr
             integer(c_int), value, intent(in) :: netcdfID
@@ -352,7 +352,7 @@ module netcdf_cxx_i_mod
         !         - Non-zero: Failure.
         function c_netcdfPutAttInt(&
                 netcdfID, attName, attValue, varName, groupName) &
-                bind(C, name = "netcdfPutAttInt")
+                bind(C, name = "c_netcdfPutAttInt")
             import :: c_int
             import :: c_ptr
             integer(c_int), value, intent(in) :: netcdfID
@@ -365,7 +365,7 @@ module netcdf_cxx_i_mod
 
         function c_netcdfPutAttIntArray(&
                 netcdfID, attName, attValue, attLen, varName, groupName) &
-                bind(C, name = "netcdfPutAttIntArray")
+                bind(C, name = "c_netcdfPutAttIntArray")
             import :: c_int
             import :: c_ptr
             integer(c_int), value, intent(in) :: netcdfID
@@ -379,7 +379,7 @@ module netcdf_cxx_i_mod
 
         function c_netcdfPutAttRealArray(&
                 netcdfID, attName, attValue, attLen, varName, groupName) &
-                bind(C, name = "netcdfPutAttRealArray")
+                bind(C, name = "c_netcdfPutAttRealArray")
             import :: c_int
             import :: c_ptr
             integer(c_int), value, intent(in) :: netcdfID
@@ -394,7 +394,7 @@ module netcdf_cxx_i_mod
         ! See documentation for `c_netcdfPutAttInt`.
         function c_netcdfPutAttString(&
                 netcdfID, attName, attValue, varName, groupName) &
-                bind(C, name = "netcdfPutAttString")
+                bind(C, name = "c_netcdfPutAttString")
             import :: c_int
             import :: c_ptr
             integer(c_int), value, intent(in) :: netcdfID

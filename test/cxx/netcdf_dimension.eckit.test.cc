@@ -16,13 +16,13 @@ namespace {
 struct NetcdfAddDimFixture {
     std::string filePath;
     int netcdfID;
-    std::shared_ptr<netCDF::NcFile> file;
+    std::shared_ptr<NetcdfFile> file;
 
     NetcdfAddDimFixture() : filePath("test_add_dim.nc"), netcdfID(-1) {
         std::remove(filePath.c_str());
 
         // Create NetCDF file
-        file = std::make_shared<netCDF::NcFile>(filePath, netCDF::NcFile::replace);
+        file = std::make_shared<NetcdfFile>(filePath, netCDF::NcFile::replace);
         netcdfID = file->getId();
 
         // Register in FileMap
@@ -52,7 +52,7 @@ CASE("NetcdfAddDim - AddsDimToRootGroup") {
 
     auto dimInfo = iodaSchema.getDimension(dimName);
 
-    int ret = netcdfAddDim(f.netcdfID, "", dimName, dimLen, &dimID);
+    int ret = c_netcdfAddDim(f.netcdfID, "", dimName, dimLen, &dimID);
     EXPECT(ret == 0);
     EXPECT(dimID > -1);
 
@@ -79,7 +79,7 @@ CASE("NetcdfAddDim - AddsDimToNamedGroup") {
 
     auto dimInfo = iodaSchema.getDimension(dimName);
 
-    int ret = netcdfAddDim(f.netcdfID, groupInfo.getValidName().c_str(),
+    int ret = c_netcdfAddDim(f.netcdfID, groupInfo.getValidName().c_str(),
                            dimName, dimLen, &dimID);
     EXPECT(ret == 0);
     EXPECT(dimID > -1);
@@ -98,8 +98,8 @@ CASE("NetcdfAddDim - AddDimWithNullGroupNameReturnsError") {
     NetcdfAddDimFixture f;
 
     int dimID = -1;
-    int ret = netcdfAddDim(f.netcdfID, nullptr, "InvalidDim", 10, &dimID);
-
+    int ret = c_netcdfAddDim(f.netcdfID, nullptr, "InvalidDim", 10, &dimID);
+    std::cout << "Return code: " << ret << std::endl;
     EXPECT(ret == -116);   // Specific error for null group name
     EXPECT(dimID == -1);   // ID should not be set
 }

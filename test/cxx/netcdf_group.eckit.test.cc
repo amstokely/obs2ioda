@@ -16,13 +16,13 @@ namespace {
 struct NetcdfAddGroupFixture {
     std::string filePath;
     int netcdfID;
-    std::shared_ptr<netCDF::NcFile> file;
+    std::shared_ptr<NetcdfFile> file;
 
     NetcdfAddGroupFixture() : filePath("test_group.nc"), netcdfID(-1) {
         std::remove(filePath.c_str());
 
         // Create NetCDF file
-        file = std::make_shared<netCDF::NcFile>(filePath, netCDF::NcFile::replace);
+        file = std::make_shared<NetcdfFile>(filePath, netCDF::NcFile::replace);
         netcdfID = file->getId();
 
         // Register in FileMap

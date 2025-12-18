@@ -93,4 +93,5 @@ class TestSuite:
         Clean up the output directory after the test is complete.
         This removes all files that were generated during the test.
         """
-        clean_directory(self.output_dir)
+        return
+        # clean_directory(self.output_dir)

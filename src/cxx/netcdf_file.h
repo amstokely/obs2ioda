@@ -6,6 +6,7 @@
 #include <memory>
 #include "ioda_obs_schema.h"
 #include "ioda_obs_schema_eckit.h"
+#include "netcdf_interface.h"
 
 namespace Obs2Ioda {
     extern IodaObsSchema<EckitPolicy> iodaSchema;
@@ -50,7 +51,7 @@ namespace Obs2Ioda {
          */
         void addFile(
             int netcdfID,
-            const std::shared_ptr<netCDF::NcFile> &file
+            const std::shared_ptr<NetcdfFile> &file
         );
 
         /**
@@ -76,7 +77,7 @@ namespace Obs2Ioda {
          * @return A shared pointer to the NetCDF file.
          * @throws netCDF::exceptions::NcBadId if the `netcdfID` does not exist in the map.
          */
-        std::shared_ptr<netCDF::NcFile> getFile(
+        std::shared_ptr<NetcdfFile> getFile(
             int netcdfID
         );
 
@@ -87,7 +88,7 @@ namespace Obs2Ioda {
         FileMap() = default;
 
         /// Map associating NetCDF file IDs with their corresponding shared pointers to NetCDF files.
-        std::unordered_map<int, std::shared_ptr<netCDF::NcFile> >
+        std::unordered_map<int, std::shared_ptr<NetcdfFile> >
         fileMap;
     };
 

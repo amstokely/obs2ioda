@@ -17,7 +17,7 @@ namespace Obs2Ioda {
 
     void FileMap::addFile(
             const int netcdfID,
-            const std::shared_ptr<netCDF::NcFile> &file
+            const std::shared_ptr<NetcdfFile> &file
     ) {
         auto netcdfFileIterator = this->fileMap.find(netcdfID);
         if (netcdfFileIterator != this->fileMap.end()) {
@@ -45,7 +45,7 @@ namespace Obs2Ioda {
         this->fileMap.erase(netcdfFileIterator);
     }
 
-    std::shared_ptr<netCDF::NcFile>
+    std::shared_ptr<NetcdfFile>
     FileMap::getFile(const int netcdfID) {
         const auto netcdfFileIterator = this->fileMap.find(netcdfID);
         if (netcdfFileIterator == this->fileMap.end()) {
@@ -64,9 +64,8 @@ namespace Obs2Ioda {
             int fileMode
     ) {
         try {
-            const auto file = std::make_shared<netCDF::NcFile>(
-                    path,
-                    static_cast<netCDF::NcFile::FileMode>(fileMode)
+            const auto file = std::make_shared<NetcdfFile>(
+                path, fileMode
             );
             *netcdfID = file->getId();
             FileMap::getInstance().addFile(
