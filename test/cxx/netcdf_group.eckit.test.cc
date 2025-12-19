@@ -52,7 +52,7 @@ CASE("NetcdfAddGroup - Adds group to root") {
     auto groupInfo = iodaSchema.getGroup(validGroupName);
 
     // Add group
-    int ret = netcdfAddGroup(f.netcdfID, "", validGroupName);
+    int ret = c_netcdfAddGroup(f.netcdfID, "", validGroupName);
     EXPECT(ret == 0);
 
     // Validate it exists
@@ -81,7 +81,7 @@ CASE("NetcdfAddGroup - Adds group to parent") {
         EXPECT(childInfo.getValidName() == childName);
         EXPECT(childInfo.getNames().size() == 1);
 
-        int ret = netcdfAddGroup(f.netcdfID, parentInfo.getValidName().c_str(), childName.c_str());
+        int ret = c_netcdfAddGroup(f.netcdfID, parentInfo.getValidName().c_str(), childName.c_str());
         EXPECT(ret == 0);
 
         auto parentGroup = f.file->getGroup(parentInfo.getValidName());
@@ -97,7 +97,7 @@ CASE("NetcdfAddGroup - Non-existent parent group returns error") {
     NetcdfAddGroupFixture f;
 
     std::string invalidName = "ThisGroupDoesNotExist";
-    int ret = netcdfAddGroup(f.netcdfID, invalidName.c_str(), invalidName.c_str());
+    int ret = c_netcdfAddGroup(f.netcdfID, invalidName.c_str(), invalidName.c_str());
     EXPECT(ret < 0);  // Should be an error code
 }
 
@@ -108,7 +108,7 @@ CASE("NetcdfAddGroup - Non-existent parent group returns error") {
 CASE("NetcdfAddGroup - Null parent group name returns error") {
     NetcdfAddGroupFixture f;
 
-    int ret = netcdfAddGroup(f.netcdfID, nullptr, "InvalidGroup");
+    int ret = c_netcdfAddGroup(f.netcdfID, nullptr, "InvalidGroup");
     EXPECT(ret == -116);  // Specific error for null parent
 }
 

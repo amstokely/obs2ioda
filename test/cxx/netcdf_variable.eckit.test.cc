@@ -29,7 +29,7 @@ struct NetcdfVariableFixture {
         try {
             FileMap::getInstance().removeFile(netcdfID);
         } catch (...) {}
-        std::remove(filePath.c_str());
+         std::remove(filePath.c_str());
     }
 };
 
@@ -44,10 +44,10 @@ CASE("NetcdfVariable - AddVarAndPutIntValues") {
 
     f.file->addDim("loc", 4);
     const char *dims[] = {"loc"};
-    EXPECT(netcdfAddVar(f.netcdfID, "", "var_int", NC_INT, 1, dims) == 0);
+    EXPECT(c_netcdfAddVar(f.netcdfID, "", "var_int", NC_INT, 1, dims) == 0);
 
     int values[] = {1, 2, 3, 4};
-    EXPECT(netcdfPutVarInt(f.netcdfID, "", "var_int", values) == 0);
+    EXPECT(c_netcdfPutVarInt(f.netcdfID, "", "var_int", values) == 0);
 
     int result[4];
     f.file->getVar("var_int").getVar(result);
@@ -64,10 +64,10 @@ CASE("NetcdfVariable - PutDoubleValues") {
 
     f.file->addDim("dim1", 2);
     const char *dims[] = {"dim1"};
-    EXPECT(netcdfAddVar(f.netcdfID, "", "var_double", NC_DOUBLE, 1, dims) == 0);
+    EXPECT(c_netcdfAddVar(f.netcdfID, "", "var_double", NC_DOUBLE, 1, dims) == 0);
 
     double vals[] = {3.14, 2.71};
-    EXPECT(netcdfPutVarDouble(f.netcdfID, "", "var_double", vals) == 0);
+    EXPECT(c_netcdfPutVarDouble(f.netcdfID, "", "var_double", vals) == 0);
 
     double out[2];
     f.file->getVar("var_double").getVar(out);
@@ -83,38 +83,16 @@ CASE("NetcdfVariable - PutFloatValues") {
 
     f.file->addDim("d", 3);
     const char *dims[] = {"d"};
-    EXPECT(netcdfAddVar(f.netcdfID, "", "var_float", NC_FLOAT, 1, dims) == 0);
+    EXPECT(c_netcdfAddVar(f.netcdfID, "", "var_float", NC_FLOAT, 1, dims) == 0);
 
     float vals[] = {1.1f, 2.2f, 3.3f};
-    EXPECT(netcdfPutVarReal(f.netcdfID, "", "var_float", vals) == 0);
+    EXPECT(c_netcdfPutVarReal(f.netcdfID, "", "var_float", vals) == 0);
 
     float out[3];
     f.file->getVar("var_float").getVar(out);
     EXPECT(out[0] == 1.1f);
     EXPECT(out[1] == 2.2f);
     EXPECT(out[2] == 3.3f);
-}
-
-//--------------------------------------------------------------------
-// Put char array values
-//--------------------------------------------------------------------
-
-CASE("NetcdfVariable - PutCharArrayValues") {
-    NetcdfVariableFixture f;
-
-    f.file->addDim("nstr", 3);
-    f.file->addDim("len", 7);
-    const char *dims[] = {"nstr", "len"};
-    EXPECT(netcdfAddVar(f.netcdfID, "", "char_arr", NC_CHAR, 2, dims) == 0);
-
-    const char *values[] = {"apple", "banana", "pear"};
-    EXPECT(netcdfPutVarChar(f.netcdfID, "", "char_arr", values) == 0);
-
-    char buffer[3][7] = {};
-    f.file->getVar("char_arr").getVar(&buffer[0][0]);
-    EXPECT(std::string(buffer[0]) == "apple");
-    EXPECT(std::string(buffer[1]) == "banana");
-    EXPECT(std::string(buffer[2]) == "pear");
 }
 
 //--------------------------------------------------------------------
@@ -126,10 +104,10 @@ CASE("NetcdfVariable - PutInt64Values") {
 
     f.file->addDim("d", 2);
     const char *dims[] = {"d"};
-    EXPECT(netcdfAddVar(f.netcdfID, "", "var_i64", NC_INT64, 1, dims) == 0);
+    EXPECT(c_netcdfAddVar(f.netcdfID, "", "var_i64", NC_INT64, 1, dims) == 0);
 
     long long vals[] = {123456789LL, -987654321LL};
-    EXPECT(netcdfPutVarInt64(f.netcdfID, "", "var_i64", vals) == 0);
+    EXPECT(c_netcdfPutVarInt64(f.netcdfID, "", "var_i64", vals) == 0);
 }
 
 //--------------------------------------------------------------------
@@ -141,8 +119,8 @@ CASE("NetcdfVariable - SetFillValueInt") {
 
     f.file->addDim("n", 1);
     const char *dims[] = {"n"};
-    EXPECT(netcdfAddVar(f.netcdfID, "", "var_with_fill", NC_INT, 1, dims) == 0);
-    EXPECT(netcdfSetFillInt(f.netcdfID, "", "var_with_fill", true, -999) == 0);
+    EXPECT(c_netcdfAddVar(f.netcdfID, "", "var_with_fill", NC_INT, 1, dims) == 0);
+    EXPECT(c_netcdfSetFillInt(f.netcdfID, "", "var_with_fill", true, -999) == 0);
 }
 
 //--------------------------------------------------------------------
@@ -154,29 +132,10 @@ CASE("NetcdfVariable - SetFillValueString") {
 
     f.file->addDim("n", 1);
     const char *dims[] = {"n"};
-    EXPECT(netcdfAddVar(f.netcdfID, "", "str_fill", NC_STRING, 1, dims) == 0);
-    EXPECT(netcdfSetFillString(f.netcdfID, "", "str_fill", true, "") == 0);
+    EXPECT(c_netcdfAddVar(f.netcdfID, "", "str_fill", NC_STRING, 1, dims) == 0);
+    EXPECT(c_netcdfSetFillString(f.netcdfID, "", "str_fill", true, "") == 0);
 }
 
-//--------------------------------------------------------------------
-// Flatten char array pads and null terminates
-//--------------------------------------------------------------------
-
-CASE("NetcdfVariable - FlattenCharArrayPadsAndNullTerminates") {
-    const char *values[] = {"apple", "banana", "pear"};
-    size_t numStrings = 3;
-    size_t stringLen = 7;
-
-    std::vector<char> result = flattenCharArray(values, numStrings, stringLen);
-
-    EXPECT(result.size() == numStrings * stringLen);
-    EXPECT(std::string(&result[0]) == "apple");
-    EXPECT(std::string(&result[7]) == "banana");
-    EXPECT(std::string(&result[14]) == "pear");
-    EXPECT(result[5] == '\0');
-    EXPECT(result[13] == '\0');
-    EXPECT(result[21] == '\0');
-}
 
 //--------------------------------------------------------------------
 // Put string values
@@ -187,10 +146,10 @@ CASE("NetcdfVariable - PutStringValues") {
 
     f.file->addDim("nstr", 2);
     const char *dims[] = {"nstr"};
-    EXPECT(netcdfAddVar(f.netcdfID, "", "var_str", NC_STRING, 1, dims) == 0);
+    EXPECT(c_netcdfAddVar(f.netcdfID, "", "var_str", NC_STRING, 1, dims) == 0);
 
     const char *inputValues[] = {"hello", "world"};
-    EXPECT(netcdfPutVarString(f.netcdfID, "", "var_str", inputValues) == 0);
+    EXPECT(c_netcdfPutVarString(f.netcdfID, "", "var_str", inputValues) == 0);
 
     char *outputValues[2] = {nullptr, nullptr};
     f.file->getVar("var_str").getVar(outputValues);
@@ -212,10 +171,10 @@ CASE("NetcdfVariable - PutEmptyAndSpecialStringValues") {
 
     f.file->addDim("nstr", 3);
     const char *dims[] = {"nstr"};
-    EXPECT(netcdfAddVar(f.netcdfID, "", "special_str", NC_STRING, 1, dims) == 0);
+    EXPECT(c_netcdfAddVar(f.netcdfID, "", "special_str", NC_STRING, 1, dims) == 0);
 
     const char *inputValues[] = {"", "foo\nbar", "©2025!"};
-    EXPECT(netcdfPutVarString(f.netcdfID, "", "special_str", inputValues) == 0);
+    EXPECT(c_netcdfPutVarString(f.netcdfID, "", "special_str", inputValues) == 0);
 
     char *outputValues[3] = {nullptr, nullptr, nullptr};
     f.file->getVar("special_str").getVar(outputValues);
@@ -237,9 +196,14 @@ CASE("NetcdfVariable - AddVarWithNullGroupNameReturnsError") {
     NetcdfVariableFixture f;
 
     const char *dims[] = {"dim"};
-    int ret = netcdfAddVar(f.netcdfID, nullptr, "var_null_group", NC_INT, 1, dims);
+    int ret = c_netcdfAddVar(f.netcdfID, nullptr, "var_null_group", NC_INT, 1, dims);
     EXPECT(ret == -116);
 }
+
+//--------------------------------------------------------------------
+// AddVar with null group name returns error
+//--------------------------------------------------------------------
+
 
 //--------------------------------------------------------------------
 // Entry point

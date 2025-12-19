@@ -69,7 +69,7 @@ module netcdf_cxx_i_mod
         !     - The parent group must exist; otherwise, the operation will fail with an error.
         function c_netcdfAddGroup(&
                 netcdfID, parentGroupName, groupName) &
-                bind(C, name = "netcdfAddGroup")
+                bind(C, name = "c_netcdfAddGroup")
             import :: c_int
             import :: c_ptr
             integer(c_int), value, intent(in) :: netcdfID
@@ -144,7 +144,7 @@ module netcdf_cxx_i_mod
         !     - All strings must be null-terminated and passed as C pointers.
         function c_netcdfAddVar(&
                 netcdfID, groupName, varName, netcdfDataType, numDims, dimNames) &
-                bind(C, name = "netcdfAddVar")
+                bind(C, name = "c_netcdfAddVar")
             import :: c_int
             import :: c_ptr
             integer(c_int), value, intent(in) :: netcdfID
@@ -176,7 +176,7 @@ module netcdf_cxx_i_mod
         !         - Non-zero: Failure.
         function c_netcdfPutVarInt(&
                 netcdfID, groupName, varName, values) &
-                bind(C, name = "netcdfPutVarInt")
+                bind(C, name = "c_netcdfPutVarInt")
             import :: c_int
             import :: c_ptr
             integer(c_int), value, intent(in) :: netcdfID
@@ -189,7 +189,7 @@ module netcdf_cxx_i_mod
         ! See documentation for `c_netcdfPutVarInt`.
         function c_netcdfPutVarInt64(&
                 netcdfID, groupName, varName, values) &
-                bind(C, name = "netcdfPutVarInt64")
+                bind(C, name = "c_netcdfPutVarInt64")
             import :: c_int
             import :: c_ptr
             integer(c_int), value, intent(in) :: netcdfID
@@ -202,7 +202,7 @@ module netcdf_cxx_i_mod
         ! See documentation for `c_netcdfPutVarInt`.
         function c_netcdfPutVarReal(&
                 netcdfID, groupName, varName, values) &
-                bind(C, name = "netcdfPutVarReal")
+                bind(C, name = "c_netcdfPutVarReal")
             import :: c_int
             import :: c_ptr
             integer(c_int), value, intent(in) :: netcdfID
@@ -215,7 +215,7 @@ module netcdf_cxx_i_mod
         ! See documentation for `c_netcdfPutVarInt`.
         function c_netcdfPutVarDouble(&
            netcdfID, groupName, varName, values) &
-           bind(C, name = "netcdfPutVarDouble")
+           bind(C, name = "c_netcdfPutVarDouble")
             import :: c_int
             import :: c_ptr
             integer(c_int), value, intent(in) :: netcdfID
@@ -228,7 +228,7 @@ module netcdf_cxx_i_mod
         ! See documentation for `c_netcdfPutVarInt`.
         function c_netcdfPutVarString(&
                 netcdfID, groupName, varName, values) &
-                bind(C, name = "netcdfPutVarString")
+                bind(C, name = "c_netcdfPutVarString")
             import :: c_int
             import :: c_ptr
             integer(c_int), value, intent(in) :: netcdfID
@@ -237,19 +237,6 @@ module netcdf_cxx_i_mod
             type(c_ptr), value, intent(in) :: values
             integer(c_int) :: c_netcdfPutVarString
         end function c_netcdfPutVarString
-
-        ! See documentation for `c_netcdfPutVarInt`.
-        function c_netcdfPutVarChar(&
-                netcdfID, groupName, varName, values) &
-                bind(C, name = "netcdfPutVarChar")
-            import :: c_int
-            import :: c_ptr
-            integer(c_int), value, intent(in) :: netcdfID
-            type(c_ptr), value, intent(in) :: groupName
-            type(c_ptr), value, intent(in) :: varName
-            type(c_ptr), value, intent(in) :: values
-            integer(c_int) :: c_netcdfPutVarChar
-        end function c_netcdfPutVarChar
 
         ! c_netcdfSetFillInt:
         !   Sets the fill mode and fill value for an NetCDF variable in the specified group
@@ -274,7 +261,7 @@ module netcdf_cxx_i_mod
         !         - Non-zero: Failure.
         function c_netcdfSetFillInt(&
                 netcdfID, groupName, varName, fillMode, fillValue) &
-                bind(C, name = "netcdfSetFillInt")
+                bind(C, name = "c_netcdfSetFillInt")
             import :: c_int
             import :: c_ptr
             integer(c_int), value, intent(in) :: netcdfID
@@ -288,7 +275,7 @@ module netcdf_cxx_i_mod
         ! See documentation for `c_netcdfSetFillInt`.
         function c_netcdfSetFillInt64(&
                 netcdfID, groupName, varName, fillMode, fillValue) &
-                bind(C, name = "netcdfSetFillInt64")
+                bind(C, name = "c_netcdfSetFillInt64")
             import :: c_int
             import :: c_long
             import :: c_ptr
@@ -303,7 +290,7 @@ module netcdf_cxx_i_mod
         ! See documentation for `c_netcdfSetFillInt`.
         function c_netcdfSetFillReal(&
                 netcdfID, groupName, varName, fillMode, fillValue) &
-                bind(C, name = "netcdfSetFillReal")
+                bind(C, name = "c_netcdfSetFillReal")
             import :: c_int
             import :: c_ptr
             import :: c_float
@@ -318,7 +305,7 @@ module netcdf_cxx_i_mod
         ! See documentation for `c_netcdfSetFillInt`.
         function c_netcdfSetFillString(&
                 netcdfID, groupName, varName, fillMode, fillValue) &
-                bind(C, name = "netcdfSetFillString")
+                bind(C, name = "c_netcdfSetFillString")
             import :: c_int
             import :: c_ptr
             type(c_ptr), value, intent(in) :: fillValue

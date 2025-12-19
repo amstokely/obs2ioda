@@ -14,7 +14,7 @@ template<SchemaPolicyLike Policy>
 class IodaObsSchema {
 public:
     using YamlNode = typename Policy::YamlNode;
-    using Backend  = typename Policy::Backend;
+    using Backend = typename Policy::Backend;
     std::unordered_map<std::string, std::shared_ptr<const IodaObsVariable> >
     variables;
     std::unordered_map<std::string, std::shared_ptr<const IodaObsDimension> >
@@ -24,24 +24,19 @@ public:
     std::unordered_map<std::string, std::shared_ptr<const IodaObsAttribute> >
     attributes;
 
-    template<std::derived_from<IodaObsSchemaComponent> Component> void
-    setComponent(
-        const std::unique_ptr<YamlNode> &schema,
-        const std::string &category, const std::string &key,
-        ComponentMap<const Component> &map
-    ) {
-        Backend::template loadComponent<Component>(
-            schema, category, key, map
-        );
+    template<std::derived_from<IodaObsSchemaComponent> Component>
+    void
+    setComponent(const std::unique_ptr<YamlNode> &schema,
+                 const std::string &category, const std::string &key,
+                 ComponentMap<const Component> &map) {
+        Backend::template loadComponent<Component>(schema, category, key, map);
     }
 
-    template<std::derived_from<IodaObsSchemaComponent> Component> const
-    Component &getComponent(
-        const std::string &n, ComponentMap<const Component> &componentMap
-    ) {
+    template<std::derived_from<IodaObsSchemaComponent> Component>
+    const Component &getComponent(const std::string &n,
+                                  ComponentMap<const Component> &componentMap) {
         auto [it, inserted] = componentMap.try_emplace(
-            n, std::make_shared<Component>(n, std::vector{n})
-        );
+            n, std::make_shared<Component>(n, std::vector{n}));
         return *(it->second);
     }
 
@@ -51,19 +46,15 @@ public:
      * @param schema Pointer to YAML schema node.
      */
     explicit IodaObsSchema(const std::unique_ptr<YamlNode> &schema) {
-        setComponent<IodaObsAttribute>(
-            schema, "Attributes", "Attribute", attributes
-        );
+        setComponent<IodaObsAttribute>(schema, "Attributes", "Attribute",
+                                       attributes);
         setComponent<IodaObsGroup>(schema, "Groups", "Group", groups);
-        setComponent<IodaObsDimension>(
-            schema, "Dimensions", "Dimension", dimensions
-        );
-        setComponent<IodaObsVariable>(
-            schema, "Variables", "Variable", variables
-        );
-        setComponent<IodaObsVariable>(
-            schema, "Dimensions", "Dimension", variables
-        );
+        setComponent<IodaObsDimension>(schema, "Dimensions", "Dimension",
+                                       dimensions);
+        setComponent<IodaObsVariable>(schema, "Variables", "Variable",
+                                      variables);
+        setComponent<IodaObsVariable>(schema, "Dimensions", "Dimension",
+                                      variables);
     }
 
     /// @return Attribute by name (inserts default if not present).

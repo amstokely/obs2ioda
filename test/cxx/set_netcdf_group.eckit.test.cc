@@ -48,7 +48,7 @@ struct SetNetcdfGroupFixture {
 CASE("SetNetcdfGroup - SetGroupForGlobalComponent") {
     SetNetcdfGroupFixture f;
 
-    auto group = Obs2Ioda::setNetcdfGroup(f.file, "");
+    auto group = setNetcdfGroup(f.file, "");
     EXPECT(f.file == group);
 }
 
@@ -59,7 +59,7 @@ CASE("SetNetcdfGroup - SetGroupForGlobalComponent") {
 CASE("SetNetcdfGroup - SetGroupForGroupLevelComponent") {
     SetNetcdfGroupFixture f;
 
-    auto group = Obs2Ioda::setNetcdfGroup(f.file, f.groupName.c_str());
+    auto group = setNetcdfGroup(f.file, f.groupName.c_str());
     EXPECT(f.refGroup->getName() == group->getName());
 }
 
@@ -71,7 +71,7 @@ CASE("SetNetcdfGroup - SetGroupThrowsForNullptrGroupName") {
     SetNetcdfGroupFixture f;
 
     EXPECT_THROWS_AS(
-        Obs2Ioda::setNetcdfGroup(f.file, nullptr),
+        setNetcdfGroup(f.file, nullptr),
         netCDF::exceptions::NcBadGroupId
     );
 }
@@ -84,7 +84,7 @@ CASE("SetNetcdfGroup - SetGroupThrowsForNonExistentGroupName") {
     SetNetcdfGroupFixture f;
 
     EXPECT_THROWS_AS(
-        Obs2Ioda::setNetcdfGroup(f.file, "foo"),
+        setNetcdfGroup(f.file, "foo"),
         netCDF::exceptions::NcBadGroupId
     );
 }
